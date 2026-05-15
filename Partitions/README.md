@@ -1,16 +1,73 @@
-# React + Vite
+# Partitions App
+- Backend : Node.js + Express
+- Frontend : Vite + React
+- Database : SQLite
+## Command
+### Backend server
+```
+~/projects/Partitions/Partitions/server$ npm run dev
+```
+- to see the json file:
+```
+http://localhost:3001/api/songs
+```
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+### Frontend server
+```
+~/projects/Partitions/Partitions$ npm run dev
+```
+- to see the json file:
+```
+http://localhost:5173/api/songs
+```
+## Tree structure
+- Install
+```
+sudo apt install tree
+```
+- Run bash
+```
+~/projects/Partitions$ tree -I node_modules
+```
+- Result
+```
+.
+└── Partitions
+    ├── Kaolin - Partons vite.pdf
+    ├── README.md
+    ├── eslint.config.js
+    ├── index.html
+    ├── package-lock.json
+    ├── package.json
+    ├── public
+    │   ├── favicon.svg
+    │   └── icons.svg
+    ├── server
+    │   ├── data
+    │   │   ├── song.db
+    │   │   └── songs.db
+    │   ├── database
+    │   │   └── db.js
+    │   ├── package-lock.json
+    │   ├── package.json
+    │   ├── routes
+    │   │   └── songs.js
+    │   └── server.js
+    ├── src
+    │   ├── App.jsx
+    │   ├── App_save.jsx
+    │   ├── Header.jsx
+    │   ├── Index.css
+    │   ├── Lyrics.jsx
+    │   ├── LyricsBlock.jsx
+    │   ├── Main.jsx
+    │   ├── Progression.jsx
+    │   ├── api.js
+    │   └── assets
+    │       ├── hero.png
+    │       ├── react.svg
+    │       └── vite.svg
+    └── vite.config.js
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+9 directories, 28 files
+```
