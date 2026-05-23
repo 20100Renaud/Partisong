@@ -8,7 +8,7 @@ import { styles, ui, themes } from "../styles/styles";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 
-export default function StudioPage() {
+export default function StudioPage({ toggleFullscreen }) {
   const { id } = useParams();
   const [song, setSong] = useState(null);
   const [view, setView] = useState("description");
@@ -56,7 +56,7 @@ export default function StudioPage() {
     if (!previewRef.current) return;
 
     const containerWidth = previewRef.current.clientWidth;
-    const newZoom = (containerWidth - 40) / PAGE_WIDTH;
+    const newZoom = (containerWidth -40) / PAGE_WIDTH;
 
     setZoom(newZoom);
   };
@@ -65,7 +65,7 @@ export default function StudioPage() {
     if (!previewRef.current) return;
 
     const containerHeight = previewRef.current.clientHeight;
-    const newZoom = (containerHeight - 40) / PAGE_HEIGHT;
+    const newZoom = (containerHeight ) / PAGE_HEIGHT;
 
     setZoom(newZoom);
 
@@ -164,7 +164,12 @@ export default function StudioPage() {
 
         {/* EDITOR */}
         {view === "description" ? (
-          <DescriptionPage embedded song={song} setSong={setSong} />
+          <DescriptionPage
+            embedded
+            song={song}
+            setSong={setSong}
+            toggleFullscreen={toggleFullscreen}
+          />
         ) : (
           <LyricsPage embedded song={song} setSong={setSong} />
         )}
@@ -178,9 +183,16 @@ export default function StudioPage() {
           <div className="w-40" />
 
           {/* CENTER : ZOOM GROUP */}
+
           <div className="flex items-center gap-3 mx-auto">
-            <div className="flex items-center text-white gap-2">
-              <span className="text-sm w-12">{Math.round(zoom * 100)}%</span>
+            <button onClick={fitWidth} className={`${ui.buttonSm} px-4 py-2`}>
+              <MoveHorizontal size={18} />
+            </button>
+
+            <div className="flex flex-col items-center text-white">
+              <span className=" absolute text-sm w-12 mt-3">
+                {Math.round(zoom * 100)}%
+              </span>
 
               <input
                 type="range"
@@ -189,13 +201,9 @@ export default function StudioPage() {
                 step={0.05}
                 value={zoom}
                 onChange={(e) => setZoom(Number(e.target.value))}
-                className="w-48 accent-purple-500 cursor-pointer"
+                className="relative  w-48 accent-purple-500 cursor-pointer"
               />
             </div>
-
-            <button onClick={fitWidth} className={`${ui.buttonSm} px-4 py-2`}>
-              <MoveHorizontal size={18} />
-            </button>
 
             <button onClick={fitHeight} className={`${ui.buttonSm} px-4 py-2`}>
               <Maximize size={18} absoluteStrokeWidth />

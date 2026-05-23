@@ -3,21 +3,23 @@ import { useParams, Link } from "react-router-dom";
 import { House, NotebookText, Monitor, Trash2 } from "lucide-react";
 import { styles, ui, themes } from "../styles/styles";
 
-export default function DescriptionPage(props) {
+export default function DescriptionPage( props) {
   const embedded = props.embedded ?? false;
   const [localSong, setLocalSong] = useState(null);
   const song = embedded ? props.song : localSong;
   const setSong = embedded ? props.setSong : setLocalSong;
   const [openThemeId, setOpenThemeId] = useState(null);
   const { id } = useParams();
+  const toggleFullscreen=props.toggleFullscreen
+
 
   useEffect(() => {
-  if (embedded) return;
+    if (embedded) return;
 
-  fetch(`/api/songs/${id}`)
-    .then((r) => r.json())
-    .then(setLocalSong);
-}, [id, embedded]);
+    fetch(`/api/songs/${id}`)
+      .then((r) => r.json())
+      .then(setLocalSong);
+  }, [id, embedded]);
 
   const groove = song?.groove || {
     beats: [],
@@ -60,16 +62,13 @@ export default function DescriptionPage(props) {
 
   // UPDATE CHORD
   function updateChord(progressionId, chordId, value) {
-    console.log("UPDATE CHORD:", { progressionId, chordId, value });
     setSong((prev) => {
       const updated = structuredClone(prev);
       const prog = updated.progressions.find((p) => p.id === progressionId);
       if (!prog) return prev;
 
       const chord = prog.chords.find((c) => c.id === chordId);
-      console.log("BEFORE:", chord);
       if (chord) chord.value = value;
-      console.log("AFTER:", chord);
       return updated;
     });
 
@@ -111,8 +110,7 @@ export default function DescriptionPage(props) {
   useEffect(() => {
     if (!song) return;
 
-    console.log("PROGRESSIONS:", song.progressions);
-    console.log("FIRST CHORD:", song.progressions?.[0]?.chords?.[0]);
+
   }, [song]);
 
   // SET BEATS
@@ -152,8 +150,6 @@ export default function DescriptionPage(props) {
 
     setSong(updated);
   }
-
-
 
   // DELETE SONG
   async function deleteProgression(id) {
@@ -207,7 +203,10 @@ export default function DescriptionPage(props) {
             </div>
           )}
           {/* PAGE TITLE */}
-          <div className="flex flex-row justify-center mx-auto">
+          <div
+            onClick={toggleFullscreen}
+            className="flex flex-row justify-center mx-auto cursor-pointer hover:opacity-80 transition"
+          >
             <h2 className={`${styles.h2}`}>Descrip</h2>
             <h2 className={`${styles.h2} !font-thin`}>Song</h2>
           </div>

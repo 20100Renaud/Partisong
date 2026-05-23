@@ -14,43 +14,41 @@ const PrintPage = forwardRef(({ song, zoom = 1 }, ref) => {
     <div
       style={{
         transform: `scale(${zoom})`,
-        transformOrigin: "top center",
+        transformOrigin: "top left",
       }}
     >
-      <div className="flex justify-center">
+      <div
+        ref={ref}
+        className="w-[794px] min-h-[1123px] bg-white border p-6 overflow-hidden"
+      >
+        <Header song={song} />
+
         <div
-          ref={ref}
-          className="w-[794px] min-h-[1123px] bg-white border p-6 overflow-hidden"
+          className="mt-8"
+          style={{
+            columnCount: 2,
+            columnGap: "5px",
+          }}
         >
-          <Header song={song} />
+          {orderedBlocks?.map((block) => {
+            const progression = song.progressions.find(
+              (p) => p.id === block.progression_id,
+            );
 
-          <div
-            className="mt-8"
-            style={{
-              columnCount: 2,
-              columnGap: "5px",
-            }}
-          >
-            {orderedBlocks?.map((block) => {
-              const progression = song.progressions.find(
-                (p) => p.id === block.progression_id,
-              );
+            if (!progression) return null;
 
-              if (!progression) return null;
-
-              return (
-                <div
-                  key={block.id}
-                  className="break-inside-avoid mb-4"
-                  style={{
-                    marginBottom: `${(block.mb ?? 4) * 4}px`,
-                  }}
-                >
-                  <LyricsBlock progression={progression} block={block} />
-                </div>
-              );
-            })}
-          </div>
+            return (
+              <div
+                key={block.id}
+                className="break-inside-avoid mb-4"
+                style={{
+                  marginBottom: `${(block.mb ?? 4) * 4}px`,
+                }}
+              >
+                <LyricsBlock progression={progression} block={block} />
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

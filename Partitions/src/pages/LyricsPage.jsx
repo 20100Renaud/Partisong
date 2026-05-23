@@ -211,7 +211,7 @@ export default function LyricsPage(props) {
             return (
               <div
                 key={block.id}
-                className={`${ui.section} space-y-4 mt-6 mx-auto shadow-xl`}
+                className={`${ui.section} space-y-4 `}
               >
                 {/* Block progression */}
                 <div className="flex justify-between items-center">
