@@ -4,13 +4,14 @@ import { House, NotebookText, Monitor, Trash2 } from "lucide-react";
 import { styles, ui, themes } from "../styles/styles";
 
 export default function DescriptionPage( props) {
+  const [animatingId, setAnimatingId] = useState(null);
   const embedded = props.embedded ?? false;
   const [localSong, setLocalSong] = useState(null);
-  const song = embedded ? props.song : localSong;
   const setSong = embedded ? props.setSong : setLocalSong;
   const [openThemeId, setOpenThemeId] = useState(null);
   const { id } = useParams();
   const toggleFullscreen=props.toggleFullscreen
+  const song = embedded ? props.song : localSong;
 
 
   useEffect(() => {
@@ -87,9 +88,9 @@ export default function DescriptionPage( props) {
       body: JSON.stringify({
         song_id: song.id,
         label: "Nom",
-        position: song.progressions.length,
+        position: song.progressions?.length ?? 0,
         theme: "red",
-        chordCount: song.groove?.beats?.length / 2 || 4,
+        chordCount: Math.floor((song.groove?.beats?.length ?? 8) / 2),
       }),
     });
 
@@ -98,10 +99,10 @@ export default function DescriptionPage( props) {
     setSong((prev) => ({
       ...prev,
       progressions: [
-        ...prev.progressions,
+        ...(prev.progressions ?? []),
         {
           ...newProg,
-          chords: newProg.chords,
+          chords: newProg.chords ?? [],
         },
       ],
     }));
@@ -181,13 +182,7 @@ export default function DescriptionPage( props) {
   //
 
   return (
-    <div
-      className={
-        embedded
-          ? ""
-          : "bg-gradient-to-tr from-purple-900 to-pink-900 py-10 min-h-screen"
-      }
-    >
+
       <div className="mx-auto max-w-2xl rounded-xl p-10">
         {/* 1. ----------------------HEADER------------------------ */}
         <div className="flex items-center justify-between mb-8">
@@ -499,6 +494,6 @@ export default function DescriptionPage( props) {
           </button>
         </div>
       </div>
-    </div>
+
   );
 }
