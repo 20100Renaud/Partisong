@@ -1,26 +1,37 @@
+import { styles, ui, themes } from "../styles/styles";
+
+// THEMES
+const themeMap = Object.fromEntries(themes.map((t) => [t.name, t]));
+
+function getTheme(name) {
+  return themeMap[name] || themes[0];
+}
+
+const safeParse = (value) => {
+  if (!value) return [];
+  if (Array.isArray(value)) return value;
+  try {
+    return JSON.parse(value);
+  } catch {
+    return [];
+  }
+};
+
 export default function Header({ song }) {
-  const beats = Array.isArray(song.groove?.beats)
-    ? song.groove.beats
-    : JSON.parse(song.groove?.beats || "[]");
-
-  const pattern = Array.isArray(song.groove?.pattern)
-    ? song.groove.pattern
-    : JSON.parse(song.groove?.pattern || "[]");
-
-  const strumming = Array.isArray(song.groove?.strumming)
-    ? song.groove.strumming
-    : JSON.parse(song.groove?.strumming || "[]");
+  const beats = safeParse(song.groove?.beats);
+  const pattern = safeParse(song.groove?.pattern);
+  const strumming = safeParse(song.groove?.strumming);
 
   return (
     <section className="flex gap-12">
       {/* LEFT : Names */}
-      <div className="flex-none text-shadow-lg ">
+      <div className="flex-1/3 text-shadow-lg ">
         <h1 className="text-4xl font-bold">{song.title}</h1>
         <p className="text-zinc-700 text-right mr-4">{song.artist}</p>
       </div>
 
       {/* RIGHT : Helper */}
-      <div className="flex-1">
+      <div className="flex-2/3">
         <div className="flex border gap-4 justify-around rounded-lg p-6 shadow-lg shadow-zinc-500">
           <div className="flex flex-col ">
             {/* Capo */}
@@ -62,30 +73,32 @@ export default function Header({ song }) {
               </div>
             </div>
           </div>
-
           {/* Progression */}
           <div className="space-y-0 text-left justify-items-start">
             <section>
               {song.progressions
                 .filter((row) => row.label !== "Intro")
-                .map((row) => (
-                  <div
-                    key={row.id}
-                    className="grid grid-cols-[100px_1fr] items-center"
-                  >
+                .map((row) => {
+                  const theme = getTheme(row.theme);
+                  return (
                     <div
-                      className={`font-bold text-right mr-4 ${row.textColor}`}
+                      key={row.id}
+                      className="grid grid-cols-[100px_1fr] items-center"
                     >
-                      {row.label}
-                    </div>
+                      <div
+                        className={`font-bold text-right mr-4 ${theme.textColor} cursor-pointer`}
+                      >
+                        {row.label}
+                      </div>
 
-                    <div className="grid grid-cols-4 text-center gap-4">
-                      {row.chords.map((chord) => (
-                        <div key={chord.id}>{chord.value}</div>
-                      ))}
+                      <div className="grid grid-cols-4 text-center gap-4">
+                        {row.chords.map((chord) => (
+                          <div key={chord.id}>{chord.value}</div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
             </section>
           </div>
         </div>

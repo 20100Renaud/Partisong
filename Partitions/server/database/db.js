@@ -32,45 +32,68 @@ const lyricsSeed = [
   },
 ];
 
-const progressionSeed = [
+const themes = [
   {
-    label: "Intro",
-    textColor: "text-black",
-    borderColor: "border-red-500",
-    bgColor: "bg-red-500/10",
-    badgeColor: "bg-red-500",
-    chords: ["C", "Em", "C", "Em", "Am", "G", "G"],
-  },
-  {
-    label: "Verse",
+    name: "red",
     textColor: "text-red-500",
     borderColor: "border-red-500",
     bgColor: "bg-red-500/10",
     badgeColor: "bg-red-500",
-    chords: ["C", "Em", "Am", "G"],
   },
   {
-    label: "Verse",
-    textColor: "text-green-600",
-    borderColor: "border-green-600",
-    bgColor: "bg-green-600/10",
-    badgeColor: "bg-green-600",
-    chords: ["Dm", "G", "Am", "G"],
+    name: "green",
+    textColor: "text-green-500",
+    borderColor: "border-green-500",
+    bgColor: "bg-green-500/10",
+    badgeColor: "bg-green-500",
   },
   {
-    label: "Bridge",
+    name: "blue",
     textColor: "text-blue-500",
     borderColor: "border-blue-500",
     bgColor: "bg-blue-500/10",
     badgeColor: "bg-blue-500",
-    chords: ["Am", "Em", "Am", "Em"],
   },
   {
-    label: "Outro",
+    name: "purple",
     textColor: "text-purple-500",
     borderColor: "border-purple-500",
     bgColor: "bg-purple-500/10",
     badgeColor: "bg-purple-500",
+  },
+  {
+    name: "yellow",
+    textColor: "text-yellow-500",
+    borderColor: "border-yellow-500",
+    bgColor: "bg-yellow-500/10",
+    badgeColor: "bg-yellow-500",
+  },
+];
+
+const progressionSeed = [
+  {
+    label: "Intro",
+    theme: "red",
+    chords: ["C", "Em", "Am", "Gx2"],
+  },
+  {
+    label: "Verse 1",
+    theme: "yellow",
+    chords: ["C", "Em", "Am", "G"],
+  },
+  {
+    label: "Verse 2",
+    theme: "green",
+    chords: ["Dm", "G", "Am", "G"],
+  },
+  {
+    label: "Bridge",
+    theme: "blue",
+    chords: ["Am", "Em", "Am", "Em"],
+  },
+  {
+    label: "Outro",
+    theme: "purple",
     chords: ["Dm", "G", "G", "GG"],
   },
 ];
@@ -120,22 +143,11 @@ function seedDatabase() {
             song_id,
             label,
             position,
-            textColor,
-            borderColor,
-            bgColor,
-            badgeColor
+            theme
           )
-          VALUES (?, ?, ?, ?, ?, ?, ?)
+          VALUES (?, ?, ?, ?)
         `,
-          [
-            songId,
-            p.label,
-            index,
-            p.textColor,
-            p.borderColor,
-            p.bgColor,
-            p.badgeColor,
-          ],
+          [songId, p.label, index, p.theme],
           function (err) {
             if (err) return console.error(err);
 
@@ -167,9 +179,11 @@ function seedDatabase() {
                     progression_id,
                     content,
                     position,
-                    show_chords
+                    show_chords,
+                    mb,
+                    display_label
                   )
-                  VALUES (?, ?, ?, ?, ?)
+                  VALUES (?, ?, ?, ?, ?, ?, ?)
                 `,
                   [
                     songId,
@@ -177,6 +191,8 @@ function seedDatabase() {
                     block.content,
                     blockIndex,
                     1,
+                    4,
+                    "short",
                   ],
                 );
               });
@@ -201,48 +217,51 @@ db.serialize(() => {
   db.run(`
   CREATE TABLE IF NOT EXISTS progressions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    song_id INTEGER,
+    song_id INTEGER NOT NULL,
     label TEXT,
     position INTEGER,
-    textColor TEXT,
-    borderColor TEXT,
-    bgColor TEXT,
-    badgeColor TEXT,
-    FOREIGN KEY(song_id) REFERENCES songs(id)
+    theme TEXT,
+
+    FOREIGN KEY(song_id) REFERENCES songs(id) ON DELETE CASCADE
     )
   `);
 
   db.run(`
     CREATE TABLE IF NOT EXISTS chords (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      progression_id INTEGER,
+      progression_id INTEGER NOT NULL,
       value TEXT,
       position INTEGER,
-      FOREIGN KEY(progression_id) REFERENCES progressions(id)
+
+      FOREIGN KEY(progression_id) REFERENCES progressions(id) ON DELETE CASCADE
     )
   `);
 
   db.run(`
     CREATE TABLE IF NOT EXISTS lyrics_blocks (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      song_id INTEGER,
+      song_id INTEGER NOT NULL,
       progression_id INTEGER,
       content TEXT,
       position INTEGER,
       show_chords INTEGER DEFAULT 0,
-      FOREIGN KEY(song_id) REFERENCES songs(id),
-      FOREIGN KEY(progression_id) REFERENCES progressions(id)
+      mb INTEGER DEFAULT 4,
+      display_label TEXT DEFAULT 'short',
+
+      FOREIGN KEY(song_id) REFERENCES songs(id) ON DELETE CASCADE,
+      FOREIGN KEY(progression_id) REFERENCES progressions(id) ON DELETE SET NULL
     )
   `);
 
   db.run(`
     CREATE TABLE IF NOT EXISTS groove (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      song_id INTEGER,
+      song_id INTEGER NOT NULL,
       beats TEXT,
       pattern TEXT,
       strumming TEXT,
-      FOREIGN KEY(song_id) REFERENCES songs(id)
+
+      FOREIGN KEY(song_id) REFERENCES songs(id) ON DELETE CASCADE
     )
   `);
 
@@ -251,5 +270,28 @@ db.serialize(() => {
       seedDatabase();
     }
   });
+
+  db.run(`
+    ALTER TABLE lyrics_blocks
+    ADD COLUMN mb INTEGER DEFAULT 4
+  `,
+    (err) => {
+      if (err && !err.message.includes("duplicate column")) {
+        console.error(err.message);
+      }
+    },
+  );
+
+  db.run(`
+    ALTER TABLE lyrics_blocks
+    ADD COLUMN display_label TEXT DEFAULT 'short'
+  `,
+    (err) => {
+      if (err && !err.message.includes("duplicate column")) {
+        console.error(err.message);
+      }
+    },
+  );
+
 });
 module.exports = db;

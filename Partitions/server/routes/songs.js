@@ -87,8 +87,7 @@ router.get("/:id", (req, res) => {
                       progressionMap.values(),
                     ).map((p) => ({
                       ...p,
-                      chords: p.chords
-                        .sort((a, b) => a.position - b.position),
+                      chords: p.chords.sort((a, b) => a.position - b.position),
                       lyricsBlocks: p.lyricsBlocks.sort(
                         (a, b) => a.position - b.position,
                       ),
@@ -121,6 +120,7 @@ router.get("/:id", (req, res) => {
   });
 });
 
+// Update specifics part of a song
 router.patch("/:id", (req, res) => {
   const { id } = req.params;
   const { title, artist, capo } = req.body;
@@ -133,6 +133,76 @@ router.patch("/:id", (req, res) => {
       res.json({ updated: this.changes });
     },
   );
+});
+
+// Create a new song
+router.post("/", (req, res) => {
+  const { title, artist, capo } = req.body;
+
+  const grooveSeed = {
+    beats: ["1", "2", "3", "4", "5", "6", "7", "8"],
+    pattern: ["B", "", "x", "", "", "x", "x", "x"],
+    strumming: ["↓", "↑", "↓", "↑", "↓", "↑", "↓", "↑"],
+  };
+
+  db.run(
+    `
+    INSERT INTO songs (title, artist, capo)
+    VALUES (?, ?, ?)
+    `,
+    [title || "New Song", artist || "Artist", capo ?? 0],
+    function (err) {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: err.message });
+      }
+
+      const songId = this.lastID;
+
+      // Create default groove
+      db.run(
+        `
+        INSERT INTO groove
+        (song_id, beats, pattern, strumming)
+        VALUES (?, ?, ?, ?)
+        `,
+        [
+          songId,
+          JSON.stringify(grooveSeed.beats),
+          JSON.stringify(grooveSeed.pattern),
+          JSON.stringify(grooveSeed.strumming),
+        ],
+        function (err) {
+          if (err) {
+            console.error(err);
+            return res.status(500).json({ error: err.message });
+          }
+
+          res.json({
+            id: songId,
+            title,
+            artist,
+            capo,
+            groove: grooveSeed,
+          });
+        },
+      );
+    },
+  );
+});
+
+// Delete song
+router.delete("/:id", (req, res) => {
+  const { id } = req.params;
+
+  db.run(`DELETE FROM songs WHERE id = ?`, [id], function (err) {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: err.message });
+    }
+
+    res.json({ success: true });
+  });
 });
 
 module.exports = router;

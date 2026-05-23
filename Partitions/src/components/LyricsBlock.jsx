@@ -1,43 +1,49 @@
+import { themes } from "../styles/styles";
+
+const themeMap = Object.fromEntries(themes.map((t) => [t.name, t]));
+
+function getTheme(name) {
+  return themeMap[name] || themes[0];
+}
+
 export default function LyricsBlock({ progression, block }) {
+  const theme = getTheme(progression.theme);
   return (
     <div className="relative">
-      {/* Label */}
+      {/* Badge */}
       <div
         className={`
           absolute
-          px-1.5
+          px-1
           rounded-br-lg
           rounded-tl-lg
-          rounded-bl-lg
-          ${progression.badgeColor}
+          ${theme.badgeColor}
           text-white
-          text-sm font-bold
+          text-xs font-bold
           flex items-center justify-center
           z-10
         `}
       >
-        {progression.label}
+        {block.display_label === "full"
+          ? progression.label
+          : `${progression.label?.charAt(0)}${progression.position}`}
       </div>
 
       {/* Container */}
       <div
         className={`
           border-l-6
-          ${progression.borderColor}
-          ${progression.bgColor}
+          ${theme.borderColor}
+          ${theme.bgColor}
           rounded-2xl
-          pl-4
-          my-1
+          pl-5
         `}
       >
         {/* Chords) */}
         {Number(block.show_chords) === 1 && (
-          <div className="flex gap-2 flex-wrap ml-6 mb-2">
+          <div className="flex gap-2 flex-wrap ml-8 ">
             {(progression.chords || []).map((chord, i) => (
-              <span
-                key={chord.id ?? i}
-                className="px-2 py-1 rounded bg-white/40"
-              >
+              <span key={chord.id ?? i} className="px-2 rounded bg-white/40">
                 {typeof chord === "object" ? chord.value : chord}
               </span>
             ))}
@@ -45,9 +51,10 @@ export default function LyricsBlock({ progression, block }) {
         )}
 
         {/* Lyrics */}
-        <div className="text-sm leading-5 whitespace-pre-wrap">
-          {block.content}
-        </div>
+        <div
+          className="text-sm leading-4 whitespace-pre-wrap"
+          dangerouslySetInnerHTML={{ __html: block.content }}
+        />
       </div>
     </div>
   );

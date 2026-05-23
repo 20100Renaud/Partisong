@@ -19,6 +19,7 @@ http://localhost:3001/api/songs
 - to see the json file:
 ```
 http://localhost:5173/api/songs
+http://localhost:5173/api/songs/Id // Change Id for details
 ```
 ## Tree structure
 - Install

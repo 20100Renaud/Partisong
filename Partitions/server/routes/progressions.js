@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const db = require("../database/db");
 
+
 // UPDATE progression
 router.patch("/:id", (req, res) => {
   const { id } = req.params;
@@ -27,10 +28,7 @@ router.post("/", (req, res) => {
     song_id,
     label,
     position,
-    textColor,
-    borderColor,
-    bgColor,
-    badgeColor,
+    theme,
     chordCount,
   } = req.body;
 
@@ -41,14 +39,11 @@ router.post("/", (req, res) => {
       song_id,
       label,
       position,
-      textColor,
-      borderColor,
-      bgColor,
-      badgeColor
+      theme
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?)
     `,
-    [song_id, label, position, textColor, borderColor, bgColor, badgeColor],
+    [song_id, label, position, theme],
     function (err) {
       if (err) return res.status(500).json(err);
 
@@ -83,10 +78,7 @@ router.post("/", (req, res) => {
               song_id,
               label,
               position,
-              textColor,
-              borderColor,
-              bgColor,
-              badgeColor,
+              theme,
               chords: rows,
             });
           },
@@ -94,6 +86,15 @@ router.post("/", (req, res) => {
       });
     },
   );
+});
+
+//Delete progression
+router.delete("/:id", (req, res) => {
+  const { id } = req.params;
+
+  db.prepare("DELETE FROM progressions WHERE id = ?").run(id);
+
+  res.json({ success: true });
 });
 
 module.exports = router;

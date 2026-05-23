@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { styles, ui } from "../styles/styles";
-import { Save, House, Info, Monitor, NotebookText } from "lucide-react";
+import { Monitor, NotebookText, Music4 } from "lucide-react";
 
-export default function SongDashboard() {
+export default function SongDashboard({ toggleFullscreen }) {
   const [songs, setSongs] = useState([]);
   const navigate = useNavigate();
 
@@ -21,11 +21,7 @@ export default function SongDashboard() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        title: "Titre",
-        artist: "",
-        capo: 0,
-      }),
+      body: JSON.stringify({}),
     });
 
     const newSong = await res.json();
@@ -34,67 +30,79 @@ export default function SongDashboard() {
     navigate(`/description/${newSong.id}`);
   }
 
+  // Delete song
+  async function deleteSong(id) {
+    await fetch(`/api/songs/${id}`, {
+      method: "DELETE",
+    });
+
+    setSongs((prev) => prev.filter((s) => s.id !== id));
+  }
+
   return (
-    <div className="bg-gradient-to-tr from-purple-900 to-pink-900 py-10 min-h-screen">
-      <div className="mx-auto max-w-5xl bg-black rounded-xl p-10">
-        <h1 className={styles.h1}>partitions</h1>
-        <h2 className={styles.h2}>Liste des chansons</h2>
-
-        <div className="flex justify-center">
-          <button
-            onClick={addSong}
-            className={`${ui.button} w-80 py-2 px-6 mb-8 hover:!w-80`}
-          >
-            + Ajouter une chanson
-          </button>
-        </div>
-
-        <div className={`${ui.section}`}>
-          {songs.map((song) => (
+    <div className="h-screen w-screen overflow-hidden bg-black">
+      {/* CONTENT */}
+      <div className="flex items-center justify-center mt-50">
+        <div className="mx-auto max-w-2xl bg-black rounded-xl p-10 w-full">
+          {/* HEADER */}
+          <div>
             <div
-              key={song.id}
-              className="rounded-xl p-6 flex justify-between items-center"
+              onClick={toggleFullscreen}
+              className="flex flex-row justify-center cursor-pointer select-none hover:opacity-80 transition"
             >
-              <div className="flex flex-1/3">
-                <h3 className={`${styles.h3} flex flex-1/2`}>{song.title}</h3>
-              </div>
-
-              <div className="flex flex-1/3">
-                <h3 className={`${styles.h3} flex flex-1/2`}>{song.artist}</h3>
-              </div>
-
-              <div className="flex flex-1/3 gap-2 h-10 justify-end">
-                <Link
-                  to={`/description/${song.id}`}
-                  className={`${ui.button} w-10`}
-                >
-                  <Info size={18} className="group-hover:hidden" />
-                  <span className="hidden group-hover:block text-sm font-medium">
-                    Infos
-                  </span>
-                </Link>
-
-                <Link to={`/lyrics/${song.id}`} className={`${ui.button} w-10`}>
-                  <NotebookText size={18} className="group-hover:hidden" />
-                  <span className="hidden group-hover:block text-sm font-medium">
-                    Paroles
-                  </span>
-                </Link>
-
-                <Link
-                  to={`/print/${song.id}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`${ui.button} w-10`}
-                >
-                  <Monitor size={18} className="group-hover:hidden" />
-                  <span className="hidden group-hover:block text-sm font-medium">
-                    Imprimer
-                  </span>
-                </Link>
-              </div>
+              <h1 className={styles.h1}>Parti</h1>
+              <h1 className={`${styles.h1} !font-thin`}>Song</h1>
             </div>
-          ))}
+            <div className="flex justify-center mt-6">
+              <button
+                onClick={addSong}
+                className={`${ui.button} w-80 py-2 px-6 mb-8 hover:!w-80`}
+              >
+                + Ajouter une chanson
+              </button>
+            </div>
+          </div>
+
+          {/* LIST */}
+          <div className="shadow-[0px_50px_200px_rgba(168,85,247,0.25),inset_0_0_50px_rgba(168,85,247,0.25)] rounded-xl">
+            {songs.map((song) => (
+              <div
+                key={song.id}
+                className={`${ui.section} rounded-xl py-2 mb-2 flex justify-between hover:py-4 transition-all duration-200 block items-center !shadow-[0_0_40px_rgba(168,85,247,0.25)]`}
+              >
+                {/* Title + Artist */}
+                <Link
+                  to={`/studio/${song.id}`}
+                  className="flex flex-2/3 cursor-pointer"
+                >
+                  <div className="w-1/2">
+                    <h3 className={`${styles.h3} flex flex-1/2`}>
+                      {song.title}
+                    </h3>
+                  </div>
+
+                  <div className="w-1/2">
+                    <h3 className={`${styles.h3} flex flex-1/2`}>
+                      {song.artist}
+                    </h3>
+                  </div>
+                </Link>
+
+                {/* DELETE SONG */}
+                <div className="flex w-1/3 gap-2 h-10 justify-end items-center">
+                  <button
+                    onClick={() => deleteSong(song.id)}
+                    className={`${ui.button} w-6 h-6 group`}
+                  >
+                    <span className="group-hover:hidden">✕</span>
+                    <span className="hidden group-hover:block text-sm font-medium">
+                      Supprimer
+                    </span>
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
