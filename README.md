@@ -25,5 +25,6 @@ http://localhost:5173/api/songs/Id // Change Id for details
 ### Demo mode
 
 ```
-VITE_DEMO_MODE=true npm run dev
+VITE_DEMO_MODE=true npm run build
+npm run preview
 ```
