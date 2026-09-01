@@ -90,6 +90,8 @@ export default function DescriptionPage(props) {
 
   // ADD PROGRESSION
   async function addProgression() {
+    if (DEMO_MODE) return;
+
     const res = await fetch(`/api/progressions`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -160,6 +162,8 @@ export default function DescriptionPage(props) {
 
   // DELETE SONG
   async function deleteProgression(id) {
+    if (DEMO_MODE) return;
+
     await fetch(`/api/progressions/${id}`, {
       method: "DELETE",
     });

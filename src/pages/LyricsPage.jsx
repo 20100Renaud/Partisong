@@ -60,7 +60,6 @@ export default function LyricsPage(props) {
     getSong(id).then(setLocalSong).catch(console.error);
   }, [id, embedded]);
 
-
   const toggleBlock = (blockId) => {
     setOpenBlockId((prev) => (prev === blockId ? null : blockId));
   };
@@ -87,7 +86,8 @@ export default function LyricsPage(props) {
         progression_id: song?.progressions?.[0]?.id || null,
         content: "",
         show_chords: 0,
-        position: song?.progressions?.flatMap((p) => p.lyricsBlocks || []).length,
+        position: song?.progressions?.flatMap((p) => p.lyricsBlocks || [])
+          .length,
         mb: 4,
       }),
     });
@@ -138,12 +138,14 @@ export default function LyricsPage(props) {
 
   // DELETE BLOCK
   async function deleteBlock(id) {
+    if (DEMO_MODE) return;
+
     await fetch(`/api/lyrics-blocks/${id}`, {
       method: "DELETE",
     });
 
     if (DEMO_MODE) return;
-    
+
     setSong((prev) => ({
       ...prev,
       progressions: prev.progressions.map((p) => ({
@@ -154,7 +156,7 @@ export default function LyricsPage(props) {
   }
 
   // TEXT FORMATTING
-    function wrapSelection(blockId, tag) {
+  function wrapSelection(blockId, tag) {
     const textarea = textareaRefs.current[blockId];
     if (!textarea) return;
 
@@ -236,6 +238,8 @@ export default function LyricsPage(props) {
       return updated;
     });
 
+    if (DEMO_MODE) return;
+
     await Promise.all(
       updates.map((u) =>
         fetch(`/api/lyrics-blocks/${u.id}`, {
@@ -256,35 +260,37 @@ export default function LyricsPage(props) {
     return div.textContent || "";
   }
 
-function clearSelectionFormatting(blockId) {
-  const textarea = textareaRefs.current[blockId];
-  if (!textarea) return;
+  function clearSelectionFormatting(blockId) {
+    const textarea = textareaRefs.current[blockId];
+    if (!textarea) return;
 
-  const start = textarea.selectionStart;
-  const end = textarea.selectionEnd;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
 
-  let adjustedEnd = end;
+    let adjustedEnd = end;
 
-  if (end > start && textarea.value[end - 1] === " ") {
-    adjustedEnd = end - 1;
+    if (end > start && textarea.value[end - 1] === " ") {
+      adjustedEnd = end - 1;
+    }
+
+    const selected = textarea.value.slice(start, adjustedEnd);
+    if (!selected) return;
+
+    const cleaned = stripTags(selected);
+
+    const newValue =
+      textarea.value.slice(0, start) +
+      cleaned +
+      textarea.value.slice(adjustedEnd);
+
+    updateBlock(blockId, { content: newValue });
+
+    requestAnimationFrame(() => {
+      textarea.focus();
+      textarea.selectionStart = start;
+      textarea.selectionEnd = start + cleaned.length;
+    });
   }
-
-  const selected = textarea.value.slice(start, adjustedEnd);
-  if (!selected) return;
-
-  const cleaned = stripTags(selected);
-
-  const newValue =
-    textarea.value.slice(0, start) + cleaned + textarea.value.slice(adjustedEnd);
-
-  updateBlock(blockId, { content: newValue });
-
-  requestAnimationFrame(() => {
-    textarea.focus();
-    textarea.selectionStart = start;
-    textarea.selectionEnd = start + cleaned.length;
-  });
-}
 
   // SWITCH TEXT FORMATTING
   function getFormatLabel(value) {
@@ -319,6 +325,8 @@ function clearSelectionFormatting(blockId) {
 
       return updated;
     });
+
+    if (DEMO_MODE) return;
 
     await Promise.all(
       updates.map((u) =>
@@ -371,9 +379,7 @@ function clearSelectionFormatting(blockId) {
           <h2 className={`${styles.h2} !font-thin`}>Song</h2>
         </div>
         <div>
-          <h3 className={`${styles.h3} !font-thin`}>
-            Couplets et paroles
-          </h3>
+          <h3 className={`${styles.h3} !font-thin`}>Couplets et paroles</h3>
         </div>
       </div>
 
@@ -580,11 +586,9 @@ function clearSelectionFormatting(blockId) {
                       <button
                         title="Réduire l'espace après ce block"
                         onClick={() =>
-                          updateBlock(
-                            block.id,
-                            "mb",
-                            Math.max(0, (block.mb ?? 0) - 4),
-                          )
+                          updateBlock(block.id, {
+                            mb: Math.max(0, (block.mb ?? 0) - 4),
+                          })
                         }
                         className="hover:text-red-400 leading-none"
                       >
@@ -605,7 +609,9 @@ function clearSelectionFormatting(blockId) {
                       <button
                         title="Augmenter l'espace après ce block"
                         onClick={() =>
-                          updateBlock(block.id, "mb", (block.mb ?? 0) + 4)
+                          updateBlock(block.id, {
+                            mb: (block.mb ?? 0) + 4,
+                          })
                         }
                         className="hover:text-green-400 leading-none"
                       >
@@ -658,6 +664,8 @@ function clearSelectionFormatting(blockId) {
                           );
                         }}
                         onBlur={(e) => {
+                          if (DEMO_MODE) return;
+
                           fetch(`/api/lyrics-blocks/${block.id}`, {
                             method: "PATCH",
                             headers: {
