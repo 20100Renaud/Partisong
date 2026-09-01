@@ -105,6 +105,7 @@ const grooveSeed = {
 };
 
 function seedDatabase() {
+  // SONG
   db.run(
     `
     INSERT INTO songs (title, artist, capo)
@@ -270,28 +271,6 @@ db.serialize(() => {
       seedDatabase();
     }
   });
-
-  db.run(`
-    ALTER TABLE lyrics_blocks
-    ADD COLUMN mb INTEGER DEFAULT 4
-  `,
-    (err) => {
-      if (err && !err.message.includes("duplicate column")) {
-        console.error(err.message);
-      }
-    },
-  );
-
-  db.run(`
-    ALTER TABLE lyrics_blocks
-    ADD COLUMN display_label TEXT DEFAULT 'short'
-  `,
-    (err) => {
-      if (err && !err.message.includes("duplicate column")) {
-        console.error(err.message);
-      }
-    },
-  );
 
 });
 module.exports = db;

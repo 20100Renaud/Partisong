@@ -88,7 +88,7 @@ export default function Header({ song }) {
                       <div
                         className={`font-bold text-right mr-4 ${theme.textColor} cursor-pointer`}
                       >
-                        {row.label}
+                        {row.label} {row.position}
                       </div>
 
                       <div className="grid grid-cols-4 text-center gap-4">

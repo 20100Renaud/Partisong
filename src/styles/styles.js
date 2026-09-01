@@ -3,7 +3,7 @@ export const styles = {
   h2: "text-4xl font-bold uppercase text-white",
   h3: "text-lg font-bold text-purple-500",
   index:
-    "text-xl font-bold rounded-l-xl rounded-br-xl",
+    "text-xl font-bold rounded-l-xl rounded-br-xl px-2",
 };
 
 export const ui = {
@@ -11,8 +11,9 @@ export const ui = {
     "rounded-3xl p-6\
     shadow-purple-900\
     shadow-[0_0_150px_rgba(168,85,247,0.6)] \
-    inset-shadow-[0_0_20px_rgba(168,85,247,0.8)] gap-4",
-  input: "border rounded-l-xl rounded-br-xl px-2 w-full bg-white",
+    inset-shadow-[0_0_10px_rgba(168,85,247,0.8)]",
+  input:
+    "border rounded-l-xl rounded-br-xl px-2 w-full bg-purple-600 border-none text-white",
   grid: "bg-white border rounded-l-xl rounded-br-xl",
   item: "w-6 border-r text-center rounded-tl-lg rounded-br-lg",
   button:

@@ -52,7 +52,7 @@ export default function LyricsBlock({ progression, block }) {
 
         {/* Lyrics */}
         <div
-          className="text-sm leading-4 whitespace-pre-wrap"
+          className="text-sm leading-4 whitespace-pre-wrap leading-5"
           dangerouslySetInnerHTML={{ __html: block.content }}
         />
       </div>

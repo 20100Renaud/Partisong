@@ -132,9 +132,9 @@ export default function StudioPage({ toggleFullscreen }) {
         </Link>
       </div>
       {/* -------------LEFT : EDITOR-------------------- */}
-      <div className="w-1/2 border-r border-zinc-800 overflow-y-auto no-scrollbar">
+      <div className="w-1/2 border-r border-zinc-800 flex flex-col h-full">
         {/* HEADER */}
-        <div className="flex gap-2 border-b border-zinc-800 h-14 items-center">
+        <div className="flex gap-2 border-b border-zinc-800 h-14 items-center shrink-0">
           {/* NAV BTN */}
           <div className="relative flex mx-auto gap-3">
             <div>
@@ -160,19 +160,27 @@ export default function StudioPage({ toggleFullscreen }) {
               </button>
             </div>
           </div>
+          
         </div>
 
         {/* EDITOR */}
-        {view === "description" ? (
-          <DescriptionPage
-            embedded
-            song={song}
-            setSong={setSong}
-            toggleFullscreen={toggleFullscreen}
-          />
-        ) : (
-          <LyricsPage embedded song={song} setSong={setSong} />
-        )}
+        <div className="flex-1 overflow-y-auto no-scrollbar">
+          {view === "description" ? (
+            <DescriptionPage
+              embedded
+              song={song}
+              setSong={setSong}
+              toggleFullscreen={toggleFullscreen}
+            />
+          ) : (
+            <LyricsPage
+              embedded
+              song={song}
+              setSong={setSong}
+              toggleFullscreen={toggleFullscreen}
+            />
+          )}
+        </div>
       </div>
 
       {/* ----------------RIGHT : PREVIEW-------------- */}

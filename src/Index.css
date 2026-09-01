@@ -1,0 +1,36 @@
+@import "tailwindcss";
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE/Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+}
+
+@keyframes slide-up {
+  0% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+
+  100% {
+    transform: translateY(0%);
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.18s ease-out;
+}
+
+mark {
+  background-color: #a855f7;
+  opacity: 30%;
+  color: white;
+  padding: 0 2px;
+  border-radius: 4px;
+}
