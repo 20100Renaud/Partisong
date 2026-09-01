@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useMemo } from "react";
+import { useEffect, useLayoutEffect, useState, useRef, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { getSong, DEMO_MODE } from "../api";
 
@@ -15,23 +15,32 @@ import {
   Italic,
   Underline,
   Highlighter,
+  GripVertical,
 } from "lucide-react";
 
 import { styles, ui, themes } from "../styles/styles";
 import { ConfirmModal } from "../components/Modal";
 
 export default function LyricsPage(props) {
-  const embedded = props.embedded ?? false;
   const [localSong, setLocalSong] = useState(null);
+  const embedded = props.embedded ?? false;
   const setSong = embedded ? props.setSong : setLocalSong;
+  const song = embedded ? props.song : localSong;
   const { id } = useParams();
   const toggleFullscreen = props.toggleFullscreen;
-  const song = embedded ? props.song : localSong;
+
   const textareaRefs = useRef({});
+  const blockRefs = useRef({});
+  const dragStateRef = useRef(null);
+  const previousRectsRef = useRef({});
+  const [blockTransforms, setBlockTransforms] = useState({});
+
+
+  const [draggedBlockId, setDraggedBlockId] = useState(null);
+  const [dragPreviewOrder, setDragPreviewOrder] = useState(null);
   const [loading, setLoading] = useState(false);
   const [replaceConfirmOpen, setReplaceConfirmOpen] = useState(false);
   const [openBlockId, setOpenBlockId] = useState(null);
-
   const [confirmState, setConfirmState] = useState({
     open: false,
     blockId: null,
@@ -40,7 +49,6 @@ export default function LyricsPage(props) {
     open: false,
     blockId: null,
   });
-
   const [replaceFormat, setReplaceFormat] = useState({
     from: "u",
     to: "b",
@@ -72,6 +80,14 @@ export default function LyricsPage(props) {
   }
 
   // ADD BLOCK
+  const allBlocks =
+    song?.progressions?.flatMap((p) => p.lyricsBlocks || []) || [];
+
+  const nextPosition =
+    allBlocks.length > 0
+      ? Math.max(...allBlocks.map((b) => b.position ?? 0)) + 1
+      : 0;
+
   async function addBlock() {
     if (DEMO_MODE) return;
 
@@ -86,8 +102,7 @@ export default function LyricsPage(props) {
         progression_id: song?.progressions?.[0]?.id || null,
         content: "",
         show_chords: 0,
-        position: song?.progressions?.flatMap((p) => p.lyricsBlocks || [])
-          .length,
+        position: nextPosition,
         mb: 4,
       }),
     });
@@ -110,7 +125,7 @@ export default function LyricsPage(props) {
     setOpenBlockId(newBlock.id);
   }
 
-  //UPDATE HELPER
+  // UPDATE HELPER
   function updateBlockInSong(song, blockId, patch) {
     return {
       ...song,
@@ -343,13 +358,228 @@ export default function LyricsPage(props) {
     );
   }
 
+  // DRAG AND DROP
+  function getBlockOrder() {
+    return [...song.progressions]
+      .flatMap((p) => p.lyricsBlocks || [])
+      .sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
+  }
+
+  function moveItem(order, fromIndex, toIndex) {
+    const next = [...order];
+    const [item] = next.splice(fromIndex, 1);
+    next.splice(toIndex, 0, item);
+    return next;
+  }
+
+  function getPreviewOrderFromPointer(clientY) {
+    const dragState = dragStateRef.current;
+
+    if (!dragState) return;
+
+    const currentOrder =
+      dragState.previewOrder || getBlockOrder().map((b) => b.id);
+
+    const draggedId = dragState.blockId;
+
+    const otherIds = currentOrder.filter((id) => id !== draggedId);
+
+    let targetIndex = otherIds.length;
+
+    for (let i = 0; i < otherIds.length; i++) {
+      const element = blockRefs.current[otherIds[i]];
+
+      if (!element) continue;
+
+      const rect = element.getBoundingClientRect();
+      const middle = rect.top + rect.height / 2;
+
+      if (clientY < middle) {
+        targetIndex = i;
+        break;
+      }
+    }
+
+    const reordered = [...otherIds];
+
+    reordered.splice(targetIndex, 0, draggedId);
+
+    if (JSON.stringify(reordered) === JSON.stringify(dragState.previewOrder)) {
+      return;
+    }
+
+    dragState.previewOrder = reordered;
+    setDragPreviewOrder(reordered);
+  }
+
+  function handlePointerMove(e) {
+    const dragState = dragStateRef.current;
+
+    if (!dragState) return;
+
+    e.preventDefault();
+
+    getPreviewOrderFromPointer(e.clientY);
+  }
+
+  async function handlePointerUp() {
+    const dragState = dragStateRef.current;
+
+    if (!dragState) return;
+
+    const finalOrder = dragState.previewOrder;
+
+    dragStateRef.current = null;
+
+    setDraggedBlockId(null);
+    setDragPreviewOrder(null);
+    setBlockTransforms({});
+    previousRectsRef.current = {};
+
+    if (!finalOrder || finalOrder.length === 0) return;
+
+    const originalOrder = getBlockOrder().map((b) => b.id);
+
+    if (JSON.stringify(originalOrder) === JSON.stringify(finalOrder)) {
+      return;
+    }
+
+    await persistBlockOrder(finalOrder);
+  }
+
+  async function persistBlockOrder(order) {
+    const updates = order.map((id, index) => ({
+      id,
+      position: index,
+    }));
+
+    setSong((prev) => ({
+      ...prev,
+      progressions: prev.progressions.map((p) => ({
+        ...p,
+        lyricsBlocks: (p.lyricsBlocks || []).map((block) => {
+          const update = updates.find((u) => u.id === block.id);
+
+          return update
+            ? {
+                ...block,
+                position: update.position,
+              }
+            : block;
+        }),
+      })),
+    }));
+
+    if (DEMO_MODE) return;
+
+    await Promise.all(
+      updates.map((update) =>
+        fetch(`/api/lyrics-blocks/${update.id}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            position: update.position,
+          }),
+        }),
+      ),
+    );
+  }
+
+  function handlePointerDown(e, blockId) {
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+
+    e.preventDefault();
+
+    previousRectsRef.current = {};
+    setBlockTransforms({});
+
+    const order = getBlockOrder().map((b) => b.id);
+
+    dragStateRef.current = {
+      blockId,
+      previewOrder: order,
+    };
+
+    setDraggedBlockId(blockId);
+    setDragPreviewOrder(order);
+
+    e.currentTarget.setPointerCapture(e.pointerId);
+  }
+
+  function handlePointerCancel() {
+    dragStateRef.current = null;
+    setDraggedBlockId(null);
+    setDragPreviewOrder(null);
+    setBlockTransforms({});
+    previousRectsRef.current = {};
+  }
+
+
   if (!song) return <div>Loading...</div>;
 
   const blocks = useMemo(() => {
-    return song.progressions
-      .flatMap((p) => p.lyricsBlocks || [])
-      .sort((a, b) => a.position - b.position);
+    return [...song.progressions.flatMap((p) => p.lyricsBlocks || [])].sort(
+      (a, b) => (a.position ?? 0) - (b.position ?? 0),
+    );
   }, [song?.progressions]);
+
+  const displayBlocks = useMemo(() => {
+    if (!dragPreviewOrder) return blocks;
+
+    const blockMap = new Map(blocks.map((block) => [block.id, block]));
+
+    return dragPreviewOrder.map((id) => blockMap.get(id)).filter(Boolean);
+  }, [blocks, dragPreviewOrder]);
+
+  useLayoutEffect(() => {
+    if (!displayBlocks.length) return;
+
+    const previousRects = previousRectsRef.current;
+    const nextRects = {};
+
+    displayBlocks.forEach((block) => {
+      const el = blockRefs.current[block.id];
+
+      if (el) {
+        nextRects[block.id] = el.getBoundingClientRect();
+      }
+    });
+
+    if (!Object.keys(previousRects).length) {
+      previousRectsRef.current = nextRects;
+      return;
+    }
+
+    const transforms = {};
+
+    displayBlocks.forEach((block) => {
+      const previous = previousRects[block.id];
+      const current = nextRects[block.id];
+
+      if (!previous || !current) return;
+
+      const deltaY = previous.top - current.top;
+
+      if (Math.abs(deltaY) > 1) {
+        transforms[block.id] = deltaY;
+      }
+    });
+
+    previousRectsRef.current = nextRects;
+
+    if (Object.keys(transforms).length === 0) return;
+
+    setBlockTransforms(transforms);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setBlockTransforms({});
+      });
+    });
+  }, [displayBlocks]);
+
+
 
   //
   //
@@ -453,9 +683,9 @@ export default function LyricsPage(props) {
         </button>
       </div>
 
-      {/* 2. ----------------------BLOCK LIST------------------------ */}
+      {/* 2. ----------BLOCK LIST-------------- */}
       <div className="space-y-2 w-full">
-        {blocks.map((block) => {
+        {displayBlocks.map((block) => {
           const progression = song?.progressions.find(
             (p) => p.id === block.progression_id,
           );
@@ -465,11 +695,88 @@ export default function LyricsPage(props) {
           return (
             <div
               key={block.id}
-              className={`${ui.section} py-1 w-full relative overflow-hidden`}
+              ref={(el) => {
+                blockRefs.current[block.id] = el;
+              }}
+              data-block-id={block.id}
+              style={{
+                transform: `
+                  translate3d(
+                    ${draggedBlockId === block.id ? "1rem" : "0px"},
+                    ${blockTransforms[block.id] ?? 0}px,
+                    0
+                  )
+                  ${draggedBlockId === block.id ? "scale(1.02)" : "scale(1)"}
+                `,
+                transition:
+                  blockTransforms[block.id] !== undefined
+                    ? "none"
+                    : "transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1)",
+              }}
+              className={`
+                ${ui.section}
+                py-1
+                w-full
+                relative
+                overflow-hidden
+                ${
+                  draggedBlockId === block.id
+                    ? `
+                      opacity-90
+                      z-50
+                      shadow-2xl
+                      shadow-purple-500/30
+                      ring-1
+                      ring-purple-400/40
+                    `
+                    : `
+                      opacity-100
+                    `
+                }
+              `}
             >
               <div className="relative z-10">
+                {/* DRAG HANDLE */}
+                <div
+                  onPointerDown={(e) => handlePointerDown(e, block.id)}
+                  onPointerMove={handlePointerMove}
+                  onPointerUp={handlePointerUp}
+                  onPointerCancel={handlePointerCancel}
+                  className={`
+                    absolute
+                    left-1
+                    top-1/2
+                    -translate-y-1/2
+                    p-1
+                    rounded
+                    select-none
+                    touch-none
+                    transition-all
+                    duration-150
+                    ${
+                      draggedBlockId === block.id
+                        ? `
+                          text-purple-200
+                          bg-purple-500/30
+                          scale-110
+                          cursor-grabbing
+                        `
+                        : `
+                          text-purple-400
+                          cursor-grab
+                          hover:bg-white/5
+                          hover:text-purple-200
+                        `
+                    }
+                  `}
+                  title="Déplacer le block"
+                >
+                  <GripVertical size={18} />
+                </div>
+
                 {/* ---------VISIBLE BAR-------------- */}
-                <div className="flex gap-4 w-full items-center justify-between">
+
+                <div className="flex gap-4 w-full items-center justify-between pl-6">
                   {/* BLOCK 1 */}
                   <div className="flex gap-4 w-136">
                     {/* BTN TOGGLE */}
