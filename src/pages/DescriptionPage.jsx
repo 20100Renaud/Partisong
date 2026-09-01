@@ -3,14 +3,15 @@ import { useParams, Link } from "react-router-dom";
 import { Trash2 } from "lucide-react";
 import { styles, ui, themes } from "../styles/styles";
 import { ConfirmModal } from "../components/Modal";
+import { getSong, DEMO_MODE } from "../api";
 
-export default function DescriptionPage( props) {
+export default function DescriptionPage(props) {
   const [animatingId, setAnimatingId] = useState(null);
   const embedded = props.embedded ?? false;
   const [localSong, setLocalSong] = useState(null);
   const setSong = embedded ? props.setSong : setLocalSong;
   const { id } = useParams();
-  const toggleFullscreen=props.toggleFullscreen
+  const toggleFullscreen = props.toggleFullscreen;
   const song = embedded ? props.song : localSong;
   const [openThemeId, setOpenThemeId] = useState(null);
 
@@ -22,9 +23,7 @@ export default function DescriptionPage( props) {
   useEffect(() => {
     if (embedded) return;
 
-    fetch(`/api/songs/${id}`)
-      .then((r) => r.json())
-      .then(setLocalSong);
+    getSong(id).then(setLocalSong).catch(console.error);
   }, [id, embedded]);
 
   const groove = song?.groove || {
@@ -59,6 +58,8 @@ export default function DescriptionPage( props) {
       return updated;
     });
 
+    if (DEMO_MODE) return;
+
     fetch(`/api/progressions/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -77,6 +78,8 @@ export default function DescriptionPage( props) {
       if (chord) chord.value = value;
       return updated;
     });
+
+    if (DEMO_MODE) return;
 
     fetch(`/api/chords/${chordId}`, {
       method: "PATCH",
@@ -115,8 +118,6 @@ export default function DescriptionPage( props) {
 
   useEffect(() => {
     if (!song) return;
-
-
   }, [song]);
 
   // SET BEATS
@@ -236,6 +237,7 @@ export default function DescriptionPage( props) {
           <div className="">
             <h3 className={styles.h3}>Titre</h3>
             <input
+              readOnly={DEMO_MODE}
               value={song.title}
               onChange={(e) =>
                 setSong({
@@ -243,7 +245,9 @@ export default function DescriptionPage( props) {
                   title: e.target.value,
                 })
               }
-              className={ui.input}
+              className={`${ui.input} ${
+                DEMO_MODE ? "cursor-default opacity-80" : ""
+              }`}
             />
           </div>
 
@@ -251,6 +255,7 @@ export default function DescriptionPage( props) {
           <div className="">
             <h3 className={styles.h3}>Artiste</h3>
             <input
+              readOnly={DEMO_MODE}
               value={song.artist}
               onChange={(e) =>
                 setSong({
@@ -258,7 +263,9 @@ export default function DescriptionPage( props) {
                   artist: e.target.value,
                 })
               }
-              className={ui.input}
+              className={`${ui.input} ${
+                DEMO_MODE ? "cursor-default opacity-80" : ""
+              }`}
             />
           </div>
         </div>
@@ -269,12 +276,15 @@ export default function DescriptionPage( props) {
           <div className="">
             <h3 className={styles.h3}>Groove</h3>
             <input
+              readOnly={DEMO_MODE}
               type="number"
               min="4"
               max="8"
               value={song.groove?.beats?.length || 8}
               onChange={(e) => setBeats(Number(e.target.value))}
-              className={ui.input}
+              className={`${ui.input} ${
+                DEMO_MODE ? "cursor-default opacity-80" : ""
+              }`}
             />
           </div>
 
@@ -282,6 +292,7 @@ export default function DescriptionPage( props) {
           <div className="">
             <h3 className={styles.h3}>Capo</h3>
             <input
+              readOnly={DEMO_MODE}
               type="number"
               value={song.capo}
               onChange={(e) =>
@@ -290,7 +301,9 @@ export default function DescriptionPage( props) {
                   capo: Number(e.target.value),
                 })
               }
-              className={ui.input}
+              className={`${ui.input} ${
+                DEMO_MODE ? "cursor-default opacity-80" : ""
+              }`}
             />
           </div>
         </div>
@@ -303,6 +316,7 @@ export default function DescriptionPage( props) {
             <div className={`${ui.grid} w-max`}>
               {song.groove.beats.map((beat, i) => (
                 <input
+                  readOnly={DEMO_MODE}
                   key={i}
                   value={song.groove.pattern[i]}
                   onChange={(e) => updatePattern(i, e.target.value)}
@@ -318,6 +332,7 @@ export default function DescriptionPage( props) {
             <div className={`${ui.grid} w-max`}>
               {song.groove.beats.map((beat, i) => (
                 <input
+                  readOnly={DEMO_MODE}
                   key={i}
                   value={song.groove.strumming[i]}
                   onChange={(e) => updateStrum(i, e.target.value)}

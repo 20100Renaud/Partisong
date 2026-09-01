@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { styles, ui } from "../styles/styles";
 import { ConfirmModal } from "../components/Modal";
 import { Trash2 } from "lucide-react";
+import { getSongs, DEMO_MODE } from "../api";
 
 export default function SongDashboard({ toggleFullscreen }) {
   const [songs, setSongs] = useState([]);
@@ -14,14 +15,13 @@ export default function SongDashboard({ toggleFullscreen }) {
   });
 
   useEffect(() => {
-    fetch("/api/songs")
-      .then((r) => r.json())
-      .then(setSongs)
-      .catch(console.error);
+    getSongs().then(setSongs).catch(console.error);
   }, []);
 
   // Add new song
   async function addSong() {
+    if (DEMO_MODE) return;
+
     const res = await fetch("/api/songs", {
       method: "POST",
       headers: {
@@ -38,6 +38,8 @@ export default function SongDashboard({ toggleFullscreen }) {
 
   // Delete song
   async function deleteSong(id) {
+    if (DEMO_MODE) return;
+
     await fetch(`/api/songs/${id}`, {
       method: "DELETE",
     });
@@ -70,6 +72,12 @@ export default function SongDashboard({ toggleFullscreen }) {
 
   return (
     <div className="h-screen w-screen overflow-hidden bg-black flex items-center">
+      {DEMO_MODE && (
+        <div className="fixed top-3 left-4 z-[9999] rounded-full bg-purple-500/20 border border-purple-500/40 px-4 py-2 text-xs text-purple-300 backdrop-blur">
+          Demo · Lecture seule
+        </div>
+      )}
+
       {/* CONTENT */}
       <div className="mx-auto max-w-2xl bg-black rounded-xl p-10 w-full">
         {/* HEADER */}
@@ -83,8 +91,11 @@ export default function SongDashboard({ toggleFullscreen }) {
           </div>
           <div className="flex justify-center mt-6">
             <button
+              disabled={DEMO_MODE}
               onClick={addSong}
-              className={`${ui.button} w-80 py-2 px-6 mb-8 hover:!w-80`}
+              className={`${ui.button} w-80 py-2 px-6 mb-8 hover:!w-80 ${
+                DEMO_MODE ? "cursor-not-allowed" : ""
+              }`}
             >
               + Ajouter une chanson
             </button>
@@ -116,9 +127,14 @@ export default function SongDashboard({ toggleFullscreen }) {
                 {/* DELETE */}
                 <div className="flex flex-1 gap-2 justify-end text-purple-500">
                   <button
-                    title="Supprimer la chanson définitivement"
+                    disabled={DEMO_MODE}
+                    title={
+                      DEMO_MODE
+                        ? "Suppression disponible dans la version complète"
+                        : "Supprimer la chanson définitivement"
+                    }
                     onClick={() => requestDeleteSong(song)}
-                    className="hover:text-red-500 leading-none"
+                    className="hover:text-red-500 leading-none disabled={DEMO_MODE}"
                   >
                     <Trash2 size={18} className="cursor-pointer" />
                   </button>

@@ -22,3 +22,8 @@ http://localhost:5173/api/songs
 http://localhost:5173/api/songs/Id // Change Id for details
 ```
 
+### Demo mode
+
+```
+VITE_DEMO_MODE=true npm run dev
+```

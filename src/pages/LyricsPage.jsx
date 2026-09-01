@@ -1,5 +1,7 @@
 import { useEffect, useState, useRef, useMemo } from "react";
 import { useParams } from "react-router-dom";
+import { getSong, DEMO_MODE } from "../api";
+
 import {
   Music4,
   EyeOff,
@@ -55,10 +57,9 @@ export default function LyricsPage(props) {
   useEffect(() => {
     if (embedded) return;
 
-    fetch(`/api/songs/${id}`)
-      .then((r) => r.json())
-      .then(setLocalSong);
+    getSong(id).then(setLocalSong).catch(console.error);
   }, [id, embedded]);
+
 
   const toggleBlock = (blockId) => {
     setOpenBlockId((prev) => (prev === blockId ? null : blockId));
@@ -73,6 +74,8 @@ export default function LyricsPage(props) {
 
   // ADD BLOCK
   async function addBlock() {
+    if (DEMO_MODE) return;
+
     const response = await fetch(`/api/lyrics-blocks`, {
       method: "POST",
       headers: {
@@ -124,6 +127,8 @@ export default function LyricsPage(props) {
   async function updateBlock(id, patch) {
     setSong((prev) => updateBlockInSong(prev, id, patch));
 
+    if (DEMO_MODE) return;
+
     await fetch(`/api/lyrics-blocks/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -137,6 +142,8 @@ export default function LyricsPage(props) {
       method: "DELETE",
     });
 
+    if (DEMO_MODE) return;
+    
     setSong((prev) => ({
       ...prev,
       progressions: prev.progressions.map((p) => ({

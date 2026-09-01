@@ -30,7 +30,7 @@ export function ConfirmModal({
 
           <button
             onClick={onConfirm}
-            disabled={loading}
+            disabled={loading} // disabled ={DEMO_MODE} :cursor-not-allowed
             className="px-3 py-1 rounded-lg bg-red-600 hover:bg-red-500 disabled:opacity-50"
           >
             {loading ? "..." : "OK"}

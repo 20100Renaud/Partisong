@@ -6,6 +6,7 @@ import PrintPage from "./PrintPage";
 import { House, MoveHorizontal, Maximize } from "lucide-react";
 import { styles, ui, themes } from "../styles/styles";
 import html2canvas from "html2canvas";
+import { getSong, DEMO_MODE } from "../api";
 import jsPDF from "jspdf";
 
 export default function StudioPage({ toggleFullscreen }) {
@@ -44,9 +45,9 @@ export default function StudioPage({ toggleFullscreen }) {
   };
 
   useEffect(() => {
-    fetch(`/api/songs/${id}`)
-      .then((r) => r.json())
-      .then(setSong);
+    getSong(id)
+      .then(setSong)
+      .catch(console.error);
   }, [id]);
 
   const PAGE_WIDTH = 794;
@@ -160,11 +161,16 @@ export default function StudioPage({ toggleFullscreen }) {
               </button>
             </div>
           </div>
-          
         </div>
 
         {/* EDITOR */}
         <div className="flex-1 overflow-y-auto no-scrollbar">
+          {DEMO_MODE && (
+            <div className="fixed top-3 left-4 z-[9999] rounded-full bg-purple-500/20 border border-purple-500/40 px-4 py-2 text-xs text-purple-300 backdrop-blur">
+              Demo · Lecture seule
+            </div>
+          )}
+
           {view === "description" ? (
             <DescriptionPage
               embedded
