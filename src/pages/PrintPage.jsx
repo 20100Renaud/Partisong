@@ -1,25 +1,29 @@
 import Header from "../components/Header";
 import LyricsBlock from "../components/LyricsBlock";
+import { PAGE_WIDTH, PAGE_HEIGHT } from "../constants/page";
 import { forwardRef } from "react";
 
-const PrintPage = forwardRef(({ song, zoom = 1 }, ref) => {
+const PrintPage = forwardRef(({ song, orderedBlocks = [], zoom = 1 }, ref) => {
   if (!song) return null;
-
-  const orderedBlocks = song.progressions
-    ?.flatMap((p) => p.lyricsBlocks || [])
-    .filter((b) => b.progression_id)
-    .sort((a, b) => a.position - b.position);
 
   return (
     <div
       style={{
-        transform: `scale(${zoom})`,
-        transformOrigin: "top left",
+        width: `${PAGE_WIDTH * zoom}px`,
+        height: `${PAGE_HEIGHT * zoom}px`,
+        position: "relative",
+        flexShrink: 0,
       }}
     >
       <div
         ref={ref}
-        className="w-[794px] min-h-[1123px] bg-white border p-6 overflow-hidden"
+        className="bg-white border p-6 overflow-hidden"
+        style={{
+          width: `${PAGE_WIDTH}px`,
+          minHeight: `${PAGE_HEIGHT}px`,
+          transform: `scale(${zoom})`,
+          transformOrigin: "top left",
+        }}
       >
         <Header song={song} />
 
@@ -30,7 +34,7 @@ const PrintPage = forwardRef(({ song, zoom = 1 }, ref) => {
             columnGap: "5px",
           }}
         >
-          {orderedBlocks?.map((block) => {
+          {orderedBlocks.map((block) => {
             const progression = song.progressions.find(
               (p) => p.id === block.progression_id,
             );
@@ -54,5 +58,7 @@ const PrintPage = forwardRef(({ song, zoom = 1 }, ref) => {
     </div>
   );
 });
+
+PrintPage.displayName = "PrintPage";
 
 export default PrintPage;

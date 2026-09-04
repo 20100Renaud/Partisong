@@ -234,11 +234,11 @@ export default function DescriptionPage(props) {
       </div>
 
       {/* 1. ----------------------SONG------------------------ */}
-      <section className={`${ui.section} flex`}>
+      <section className={`${ui.section} flex justify-between w-full`}>
         {/* 1.1 SONG COL 1 */}
-        <div className="flex-1">
+        <div className="">
           {/* 1.1.1 Title */}
-          <div className="">
+          <div className="mb-2">
             <h3 className={styles.h3}>Titre</h3>
             <input
               readOnly={DEMO_MODE}
@@ -277,7 +277,7 @@ export default function DescriptionPage(props) {
         {/* 1.2 SONG COL 2 */}
         <div className="w-15">
           {/* GROOVE */}
-          <div className="">
+          <div className="mb-2">
             <h3 className={styles.h3}>Groove</h3>
             <input
               readOnly={DEMO_MODE}
@@ -313,9 +313,9 @@ export default function DescriptionPage(props) {
         </div>
 
         {/* 1.2 SONG COL 3 */}
-        <div className="flex flex-col w-80">
+        <div className="">
           {/* PATTERN */}
-          <div className="">
+          <div className="mb-2">
             <h3 className={styles.h3}>Pattern</h3>
             <div className={`${ui.grid} w-max`}>
               {song.groove.beats.map((beat, i) => (

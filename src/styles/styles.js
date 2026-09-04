@@ -1,14 +1,14 @@
 export const styles = {
   h1: "text-5xl font-bold uppercase text-white",
   h2: "text-4xl font-bold uppercase text-white",
-  h3: "text-lg font-bold text-purple-500",
+  h3: "text-sm text-purple-500 pl-2",
   index:
     "text-xl font-bold rounded-l-xl rounded-br-xl px-2",
 };
 
 export const ui = {
   section:
-    "rounded-3xl p-6\
+    "p-6\
     shadow-purple-900\
     shadow-[0_0_150px_rgba(168,85,247,0.6)] \
     inset-shadow-[0_0_10px_rgba(168,85,247,0.8)]",

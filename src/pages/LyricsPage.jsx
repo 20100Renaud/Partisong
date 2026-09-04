@@ -614,63 +614,67 @@ export default function LyricsPage(props) {
       </div>
 
       {/* MAIN BAR */}
-      <div className={`${ui.section} flex justify-end py-1 mb-4 w-full gap-4`}>
-        {/* Switch formatting */}
-        <div className="flex items-center gap-2">
-          {/* From */}
-          <div className="w-26">
-            <select
-              value={replaceFormat.from}
-              onChange={(e) =>
-                setReplaceFormat((prev) => ({
-                  ...prev,
-                  from: e.target.value,
-                }))
-              }
-              className={`${ui.input}`}
+      <div className={`${ui.section} flex justify-between py-1 mb-4 w-full gap-4`}>
+        (!{DEMO_MODE})= {
+        <div>
+          <h3 className={`${styles.h3} !font-thin`}>Mise en forme globale</h3>
+        </div>
+        }
+        <div>
+          {/* Switch formatting */}
+          <div className="flex items-center gap-2">
+            {/* From */}
+            <div className="w-26">
+              <select
+                value={replaceFormat.from}
+                onChange={(e) =>
+                  setReplaceFormat((prev) => ({
+                    ...prev,
+                    from: e.target.value,
+                  }))
+                }
+                className={`${ui.input}`}
+              >
+                {formatOptions.map((f) => (
+                  <option key={f.value} value={f.value}>
+                    {f.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <span className="text-white text-sm">→</span>
+            {/* To */}
+            <div className="w-26">
+              <select
+                value={replaceFormat.to}
+                onChange={(e) =>
+                  setReplaceFormat((prev) => ({
+                    ...prev,
+                    to: e.target.value,
+                  }))
+                }
+                className={ui.input}
+              >
+                {formatOptions.map((f) => (
+                  <option key={f.value} value={f.value}>
+                    {f.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            {/* Apply */}
+            <button
+              disabled={replaceFormat.from === replaceFormat.to}
+              onClick={() => setReplaceConfirmOpen(true)}
+              className={`
+                ${ui.buttonSm} h-6 px-2 !rounded-lg hover:bg-purple-500
+                disabled:opacity-40
+                disabled:cursor-not-allowed
+              `}
             >
-              {formatOptions.map((f) => (
-                <option key={f.value} value={f.value}>
-                  {f.label}
-                </option>
-              ))}
-            </select>
+              Apply
+            </button>
           </div>
-
-          <span className="text-white text-sm">→</span>
-
-          {/* To */}
-          <div className="w-26">
-            <select
-              value={replaceFormat.to}
-              onChange={(e) =>
-                setReplaceFormat((prev) => ({
-                  ...prev,
-                  to: e.target.value,
-                }))
-              }
-              className={ui.input}
-            >
-              {formatOptions.map((f) => (
-                <option key={f.value} value={f.value}>
-                  {f.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Apply */}
-          <button
-            disabled={replaceFormat.from === replaceFormat.to}
-            onClick={() => setReplaceConfirmOpen(true)}
-            className={`
-              ${ui.buttonSm} h-6 px-2 !rounded-lg hover:bg-purple-500
-              disabled:opacity-40
-              disabled:cursor-not-allowed
-            `}
-          >
-            Apply
-          </button>
         </div>
 
         {/* Btn clear all formatting */}
@@ -744,9 +748,7 @@ export default function LyricsPage(props) {
                   onPointerCancel={handlePointerCancel}
                   className={`
                     absolute
-                    left-1
-                    top-1/2
-                    -translate-y-1/2
+                    -left-4
                     p-1
                     rounded
                     select-none
@@ -834,7 +836,7 @@ export default function LyricsPage(props) {
                     </div>
 
                     {/* LABEL SIZE */}
-                    <div className="w-28">
+                    <div className="w-20">
                       <select
                         value={block.display_label || "short"}
                         onChange={(e) =>

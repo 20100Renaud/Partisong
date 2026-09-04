@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { styles, ui } from "../styles/styles";
 import { ConfirmModal } from "../components/Modal";
+import DemoBadge from "../components/DemoBadge";
 import { Trash2 } from "lucide-react";
 import { getSongs, DEMO_MODE } from "../api";
 
@@ -72,11 +73,8 @@ export default function SongDashboard({ toggleFullscreen }) {
 
   return (
     <div className="h-screen w-screen overflow-hidden bg-black flex items-center">
-      {DEMO_MODE && (
-        <div className="fixed top-3 left-4 z-[9999] rounded-full bg-purple-500/20 border border-purple-500/40 px-4 py-2 text-xs text-purple-300 backdrop-blur">
-          Demo · Lecture seule
-        </div>
-      )}
+      {/* DEMO BADGE */}
+            {DEMO_MODE && <DemoBadge />}
 
       {/* CONTENT */}
       <div className="mx-auto max-w-2xl bg-black rounded-xl p-10 w-full">
@@ -107,25 +105,25 @@ export default function SongDashboard({ toggleFullscreen }) {
           {songs.map((song) => (
             <div key={song.id} className="relative group">
               {/* ------CONTENT------ */}
-              <div className="py-2 mb-2 flex justify-between">
+              <div className="p-2 mb-4 flex">
                 {/* Title + Artist */}
-                <div className="flex">
+                <div className="flex flex-1">
                   <Link
                     to={`/studio/${song.id}`}
-                    className="flex cursor-pointer"
+                    className="flex cursor-pointer w-full"
                   >
-                    <div className="w-1/2">
+                    <div className="flex-1">
                       <h3 className={`${styles.h3}`}>{song.title}</h3>
                     </div>
 
-                    <div className="w-1/2">
+                    <div className="flex-1">
                       <h3 className={`${styles.h3}`}>{song.artist}</h3>
                     </div>
                   </Link>
                 </div>
 
                 {/* DELETE */}
-                <div className="flex flex-1 gap-2 justify-end text-purple-500">
+                <div className="flex gap-2 justify-end text-purple-500">
                   <button
                     disabled={DEMO_MODE}
                     title={
@@ -144,7 +142,7 @@ export default function SongDashboard({ toggleFullscreen }) {
               {/* -----OVERLAY---- */}
               <div
                 className={`
-                  ${ui.section} rounded-xl py-2 mb-2 -mx-20
+                  ${ui.section} py-0
                   absolute inset-0 transition-all duration-300
                   group-hover:scale-x-105
                   pointer-events-none
