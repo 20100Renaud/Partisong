@@ -6,23 +6,24 @@ export default function DemoBadge() {
 
   return (
     <>
-      <button
-        onClick={() => setOpen(true)}
-        className="
-          fixed top-14 mt-1 left-1/2 -translate-x-1/2 z-[9999]
-          rounded-full
-          bg-purple-500/20
-          border border-purple-500/40
-          px-4 py-2
-          text-xs text-purple-300
-          backdrop-blur
-          cursor-pointer
-          hover:bg-purple-500/30
-          transition-colors
-        "
-      >
-        Demo · Lecture seule
-      </button>
+      <div className="bg-black fixed top-14 mt-1 left-1/2 -translate-x-1/2 z-[9999] rounded-full">
+        <button
+          onClick={() => setOpen(true)}
+          className="
+            rounded-full
+            bg-purple-500/20
+            border border-purple-500/40
+            px-4 py-2
+            text-xs text-purple-300
+            backdrop-blur
+            cursor-pointer
+            hover:bg-purple-500/30
+            transition-colors
+          "
+        >
+          Demo · Lecture seule
+        </button>
+      </div>
 
       <InfoModal
         open={open}

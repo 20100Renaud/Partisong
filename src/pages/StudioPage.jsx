@@ -193,7 +193,7 @@ export default function StudioPage({ toggleFullscreen }) {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-black overflow-hidden relative  max-[650px]:text-xs">
+    <div className="h-screen flex flex-col bg-black overflow-hidden relative max-[650px]:text-xs">
       {/*  HOME: Desktop only */}
       <div className="absolute left-8 top-1 z-60">
         {isDesktop && (
@@ -357,15 +357,6 @@ export default function StudioPage({ toggleFullscreen }) {
                 onMouseUp={handleMouseUp}
                 onMouseLeave={handleMouseUp}
               >
-                {DEMO_MODE && (
-                  <div
-                    style={{
-                      height: `${DEMO_SPACE}px`,
-                      flexShrink: 0,
-                    }}
-                  />
-                )}
-
                 <div className="min-w-max flex justify-center">
                   <PrintPage
                     ref={printRef}
@@ -409,6 +400,14 @@ export default function StudioPage({ toggleFullscreen }) {
             {/* PREVIEW */}
             {view === "preview" && (
               <div className="h-full flex flex-col">
+                {DEMO_MODE && (
+                  <div
+                    style={{
+                      height: `${DEMO_SPACE}px`,
+                      flexShrink: 0,
+                    }}
+                  />
+                )}
                 {/* PREVIEW */}
                 <div
                   ref={previewRef}
@@ -418,15 +417,6 @@ export default function StudioPage({ toggleFullscreen }) {
                   onMouseUp={handleMouseUp}
                   onMouseLeave={handleMouseUp}
                 >
-                  {DEMO_MODE && (
-                    <div
-                      style={{
-                        height: `${DEMO_SPACE}px`,
-                        flexShrink: 0,
-                      }}
-                    />
-                  )}
-
                   <div className="min-w-max flex justify-center">
                     <PrintPage
                       ref={printRef}
