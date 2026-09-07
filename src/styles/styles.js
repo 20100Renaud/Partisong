@@ -2,18 +2,19 @@ export const styles = {
   h1: "text-5xl font-bold uppercase text-white",
   h2: "text-4xl font-bold uppercase text-white",
   h3: "text-sm text-purple-500 pl-2",
-  index:
-    "text-xl font-bold rounded-l-xl rounded-br-xl px-2",
+  index: "text-xl font-bold rounded-l-xl rounded-br-xl px-2",
 };
 
 export const ui = {
   section:
-    "p-6\
+    "p-6 rounded-xl\
     shadow-purple-900\
     shadow-[0_0_150px_rgba(168,85,247,0.6)] \
     inset-shadow-[0_0_10px_rgba(168,85,247,0.8)]",
+  innerSection:
+    "py-1 pl-6 pr-2 w-full relative overflow-visible border border-purple-900 rounded-lg  shadow-purple-900 shadow-[0_0_150px_rgba(168,85,247,0.6)] bg-black",
   input:
-    "border rounded-l-xl rounded-br-xl px-2 w-full bg-purple-600 border-none text-white",
+    "border rounded-l-xl rounded-br-xl px-2 w-full bg-purple-600 border-none text-white resize-none overflow-hidden !bg-purple-300 !text-black",
   grid: "bg-white border rounded-l-xl rounded-br-xl",
   item: "w-6 border-r text-center rounded-tl-lg rounded-br-lg",
   button:
@@ -38,7 +39,7 @@ export const ui = {
     cursor-pointer",
   buttonSm:
     "group flex items-center justify-center\
-    rounded-xl \
+    rounded-lg \
     bg-gradient-to-b from-purple-500 to-purple-800\
     text-white\
     shadow-[0_6px_12px_rgba(0,0,0,0.5)]\
@@ -88,3 +89,29 @@ export const themes = [
     badgeColor: "bg-purple-500",
   },
 ];
+
+export const dropdownStyles = {
+  menu: `
+    overflow-hidden py-1
+    rounded-lg border border-purple-400/30
+    bg-zinc-900 shadow-xl shadow-black/40
+  `,
+
+  option: `
+    w-full px-2 py-1.5
+    text-left text-sm
+    transition-colors duration-100
+    cursor-pointer
+  `,
+
+  selected: `
+    text-white
+    hover:bg-purple-500/20
+    hover:text-purple-100
+  `,
+
+  hover: `
+    bg-purple-500/30
+    text-purple-200
+  `,
+};

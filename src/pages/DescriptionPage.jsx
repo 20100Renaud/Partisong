@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { Trash2 } from "lucide-react";
 import { styles, ui, themes } from "../styles/styles";
 import { ConfirmModal } from "../components/Modal";
@@ -348,7 +348,7 @@ export default function DescriptionPage(props) {
         </div>
       </section>
 
-      {/* 2. ----------------------------PROGRESSIONS -------------------*/}
+      {/* 2. ------------PROGRESSIONS ------------*/}
 
       <section className={`${ui.section} space-y-4 mt-6 mx-auto shadow-xl`}>
         {song.progressions.map((progression, progIndex) => {
@@ -451,7 +451,7 @@ export default function DescriptionPage(props) {
                     onChange={(e) =>
                       updateProgression(progression.id, "label", e.target.value)
                     }
-                    className={`${ui.input} !w-20`}
+                    className={`${ui.input} !w-24 `}
                   />
                 </div>
 
