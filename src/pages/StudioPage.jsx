@@ -197,9 +197,9 @@ export default function StudioPage({ toggleFullscreen }) {
       {/*  HOME: Desktop only */}
       <div className="absolute left-8 top-1 z-60">
         {isDesktop && (
-          <Link to="/dashboard" className={`${ui.button} w-12 h-12`}>
+          <Link to="/dashboard" className={`${ui.button} w-12 h-12 hover:w-20`}>
             <House size={18} className="group-hover:hidden" />
-            <span className="hidden group-hover:block text-sm font-medium">
+            <span className="hidden group-hover:block text-sm font-medium ">
               Accueil
             </span>
           </Link>

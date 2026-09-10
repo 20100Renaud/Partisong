@@ -1,7 +1,9 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import { themes, ui } from "../styles/styles";
-import ProgressionDropdown from "./ProgressionDropdown";
-import FormatDropdown from "./FormatDropdown";
+import { formatOptions } from "../constants/page";
+import { sanitizeLyricsHtml } from "../utils/sanitizeHtml";
+import Dropdown_Progression from "./Dropdown_Progression";
+import Dropdown_Format from "./Dropdown_Format";
 import {
   Music4,
   EyeOff,
@@ -9,10 +11,6 @@ import {
   ChevronRight,
   Eraser,
   RemoveFormatting,
-  Bold,
-  Italic,
-  Underline,
-  Highlighter,
   Trash2,
   ListChevronsUpDown,
   ListChevronsDownUp,
@@ -24,6 +22,8 @@ export default function LyricsBlockEditor({
   progression,
   song,
   isOpen,
+  selectedFormat,
+  onFormatChange,
   onToggle,
   onUpdate,
   onContentChange,
@@ -31,17 +31,6 @@ export default function LyricsBlockEditor({
   onRequestStrip,
   onRequestDelete,
 }) {
-  const [selectedFormat, setSelectedFormat] = useState("b");
-  const formatOptions = [
-    { value: "b", label: "Gras", icon: <Bold size={16} /> },
-    { value: "i", label: "Italique", icon: <Italic size={16} /> },
-    { value: "u", label: "Souligné", icon: <Underline size={16} /> },
-    { value: "mark", label: "Surligné", icon: <Highlighter size={16} /> },
-  ];
-  const currentFormat =
-    formatOptions.find((format) => format.value === selectedFormat) ||
-    formatOptions[0];
-
   const textareaRef = useRef(null);
 
   const themeMap = Object.fromEntries(themes.map((t) => [t.name, t]));
@@ -143,12 +132,12 @@ export default function LyricsBlockEditor({
         {/* VISIBLE BAR */}
         <div className="flex gap-4 w-full items-center justify-between">
           {/* BLOCK 1 */}
-          <div className="flex gap-2 w-20">
+          <div className="flex gap-2 w-20 items-center">
             {/* PROGRESSION */}
-            <ProgressionDropdown
+            <Dropdown_Progression
               value={block.progression_id}
               options={song.progressions}
-              displayLabel={block.display_label || "full"}
+              displayLabel={block.display_label}
               theme={theme}
               onChange={(progressionId) =>
                 onUpdate(block.id, {
@@ -160,7 +149,14 @@ export default function LyricsBlockEditor({
             {/* LABEL SIZE */}
             <div className="flex items-center">
               {(() => {
-                const isFull = (block.display_label || "full") === "full";
+                const defaultIsFull =
+                  progression?.label === "Intro" ||
+                  progression?.label === "Final";
+
+                const isFull =
+                  block.display_label != null
+                    ? block.display_label === "full"
+                    : defaultIsFull;
 
                 return (
                   <button
@@ -193,12 +189,11 @@ export default function LyricsBlockEditor({
           </div>
 
           {/* EXPAND TOGGLE + PREVIEW LYRICS */}
-
           <button
             type="button"
             onClick={() => onToggle(block.id)}
             className="
-                  flex flex-1 items-center min-w-0 ml-4
+                  flex flex-1 items-center min-w-0 min-[650px]:ml-4
                   text-white/50 text-left
                   hover:text-purple-400
                   hover:font-bold
@@ -210,17 +205,18 @@ export default function LyricsBlockEditor({
             </span>
             <span
               className={`
-                    ml-2 truncate
-                    whitespace-nowrap overflow-hidden
-                    transition-opacity duration-150
-                    ${isOpen ? "opacity-0" : "opacity-100"}
-                  `}
-            >
-              {block.content}
-            </span>
+                truncate
+                whitespace-nowrap overflow-hidden
+                transition-opacity duration-150
+                ${isOpen ? "opacity-0" : "opacity-100"}
+              `}
+              dangerouslySetInnerHTML={{
+                __html: sanitizeLyricsHtml(block.content),
+              }}
+            />
           </button>
 
-          {/* BLOCK 2: Chords + Mb */}
+          {/* BLOCK 2: Show chords + Mb */}
           <div className="flex gap-4">
             <div className="flex">
               {/* CHORDS */}
@@ -299,9 +295,9 @@ export default function LyricsBlockEditor({
 
         {/* HIDDEN PART */}
         {isOpen && (
-          <div className="flex gap-4 my-4">
+          <div className="flex max-[650px]:flex-col gap-2 mb-4 -ml-2 w-full max-[650px]:items-center">
             {/* LYRICS */}
-            <div className="flex flex-1">
+            <div className="flex flex-1 w-full">
               <textarea
                 ref={textareaRef}
                 value={block.content}
@@ -315,21 +311,28 @@ export default function LyricsBlockEditor({
             </div>
 
             {/* TEXT FORMATTING */}
-            <div className="flex w-30 justify-end items-center text-white h-6 mt-1 gap-2">
+            <div className="flex w-fit items-center text-white h-6 mt-1 gap-2">
               {/* Format btn */}
-              <FormatDropdown
+              <Dropdown_Format
                 value={selectedFormat}
                 options={formatOptions}
-                onChange={setSelectedFormat}
+                onChange={onFormatChange}
                 onApply={() => wrapSelection(selectedFormat)}
                 getOptionValue={(option) => option.value}
-                renderValue={(format) => format.icon}
-                renderOption={(format) => (
-                  <>
-                    {format.icon}
-                    <span>{format.label}</span>
-                  </>
-                )}
+                renderValue={(format) => {
+                  const Icon = format?.icon;
+                  return Icon ? <Icon size={16} /> : null;
+                }}
+                renderOption={(format) => {
+                  const Icon = format.icon;
+
+                  return (
+                    <>
+                      <Icon size={16} />
+                      <span>{format.label}</span>
+                    </>
+                  );
+                }}
               />
 
               {/* Clear selection */}

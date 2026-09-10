@@ -215,7 +215,7 @@ export default function DescriptionPage(props) {
   //
 
   return (
-    <div className="mx-auto max-w-2xl rounded-xl p-10">
+    <div className="mx-auto max-w-2xl rounded-xl p-10 max-[650px]:p-4">
       {/* 1. ----------------------HEADER------------------------ */}
       <div className="flex flex-col items-center justify-between mb-8">
         {/* PAGE TITLE */}
@@ -228,16 +228,18 @@ export default function DescriptionPage(props) {
         </div>
         <div>
           <h3 className={`${styles.h3} !font-thin`}>
-            Structure et patterne de la chanson
+            Structure et pattern de la chanson
           </h3>
         </div>
       </div>
 
-      {/* 1. ----------------------SONG------------------------ */}
-      <section className={`${ui.section} flex justify-between w-full`}>
-        {/* 1.1 SONG COL 1 */}
-        <div className="">
-          {/* 1.1.1 Title */}
+      {/* ----------------------SONG------------------------ */}
+      <section
+        className={`${ui.section} flex max-[640px]:flex-col gap-4 max-[640px]:gap-0 w-full`}
+      >
+        {/* COL 1: Title + Artist*/}
+        <div className="max-[640px]:flex gap-4">
+          {/* Title */}
           <div className="mb-2">
             <h3 className={styles.h3}>Titre</h3>
             <input
@@ -255,7 +257,7 @@ export default function DescriptionPage(props) {
             />
           </div>
 
-          {/* 1.1.2 Artist */}
+          {/* Artist */}
           <div className="">
             <h3 className={styles.h3}>Artiste</h3>
             <input
@@ -274,75 +276,77 @@ export default function DescriptionPage(props) {
           </div>
         </div>
 
-        {/* 1.2 SONG COL 2 */}
-        <div className="w-15">
-          {/* GROOVE */}
-          <div className="mb-2">
-            <h3 className={styles.h3}>Groove</h3>
-            <input
-              readOnly={DEMO_MODE}
-              type="number"
-              min="4"
-              max="8"
-              value={song.groove?.beats?.length || 8}
-              onChange={(e) => setBeats(Number(e.target.value))}
-              className={`${ui.input} ${
-                DEMO_MODE ? "cursor-default opacity-80" : ""
-              }`}
-            />
-          </div>
-
-          {/* CAPO */}
-          <div className="">
-            <h3 className={styles.h3}>Capo</h3>
-            <input
-              readOnly={DEMO_MODE}
-              type="number"
-              value={song.capo}
-              onChange={(e) =>
-                setSong({
-                  ...song,
-                  capo: Number(e.target.value),
-                })
-              }
-              className={`${ui.input} ${
-                DEMO_MODE ? "cursor-default opacity-80" : ""
-              }`}
-            />
-          </div>
-        </div>
-
-        {/* 1.2 SONG COL 3 */}
-        <div className="">
-          {/* PATTERN */}
-          <div className="mb-2">
-            <h3 className={styles.h3}>Pattern</h3>
-            <div className={`${ui.grid} w-max`}>
-              {song.groove.beats.map((beat, i) => (
-                <input
-                  readOnly={DEMO_MODE}
-                  key={i}
-                  value={song.groove.pattern[i]}
-                  onChange={(e) => updatePattern(i, e.target.value)}
-                  className={`${ui.item} ${i === song.groove.beats.length - 1 ? "border-r-0" : ""}`}
-                />
-              ))}
+        {/* COL 2 [Groove + Capo] + [Patterne + Strumming] */}
+        <div className="flex gap-4 justify-between">
+          {/* [Groove + Capo] */}
+          <div className="w-15">
+            {/* Groove */}
+            <div className="mb-2">
+              <h3 className={styles.h3}>Groove</h3>
+              <input
+                readOnly={DEMO_MODE}
+                type="number"
+                min="4"
+                max="8"
+                value={song.groove?.beats?.length || 8}
+                onChange={(e) => setBeats(Number(e.target.value))}
+                className={`${ui.input} ${
+                  DEMO_MODE ? "cursor-default opacity-80" : ""
+                }`}
+              />
+            </div>
+            {/* Capo */}
+            <div className="">
+              <h3 className={styles.h3}>Capo</h3>
+              <input
+                readOnly={DEMO_MODE}
+                type="number"
+                value={song.capo}
+                onChange={(e) =>
+                  setSong({
+                    ...song,
+                    capo: Number(e.target.value),
+                  })
+                }
+                className={`${ui.input} ${
+                  DEMO_MODE ? "cursor-default opacity-80" : ""
+                }`}
+              />
             </div>
           </div>
 
-          {/* STRUMMING */}
+          {/* [Patterne + Strumming] */}
           <div className="">
-            <h3 className={styles.h3}>Rythmique</h3>
-            <div className={`${ui.grid} w-max`}>
-              {song.groove.beats.map((beat, i) => (
-                <input
-                  readOnly={DEMO_MODE}
-                  key={i}
-                  value={song.groove.strumming[i]}
-                  onChange={(e) => updateStrum(i, e.target.value)}
-                  className={`${ui.item} ${i === song.groove.beats.length - 1 ? "border-r-0" : ""}`}
-                />
-              ))}
+            {/* Pattern */}
+            <div className="mb-2">
+              <h3 className={styles.h3}>Pattern</h3>
+              <div className={`${ui.grid} w-max`}>
+                {song.groove.beats.map((beat, i) => (
+                  <input
+                    readOnly={DEMO_MODE}
+                    key={i}
+                    value={song.groove.pattern[i]}
+                    onChange={(e) => updatePattern(i, e.target.value)}
+                    className={`${ui.item} ${i === song.groove.beats.length - 1 ? "border-r-0" : ""}`}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Strumming */}
+            <div className="">
+              <h3 className={styles.h3}>Rythmique</h3>
+              <div className={`${ui.grid} w-max`}>
+                {song.groove.beats.map((beat, i) => (
+                  <input
+                    readOnly={DEMO_MODE}
+                    key={i}
+                    value={song.groove.strumming[i]}
+                    onChange={(e) => updateStrum(i, e.target.value)}
+                    className={`${ui.item} ${i === song.groove.beats.length - 1 ? "border-r-0" : ""}`}
+                  />
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -358,56 +362,56 @@ export default function DescriptionPage(props) {
           return (
             <div
               key={progIndex}
-              className={`border rounded-2xl p-2 ${theme.borderColor} ${theme.bgColorDescription}`}
+              className={`border rounded-2xl p-2 flex ${theme.borderColor} ${theme.bgColorDescription}`}
             >
-              <div className="flex justify-between items-center">
-                {/* THEME PICKER / BADGE */}
-                <div className="relative">
-                  {/* OPEN BUTTON */}
+              <div className="flex flex-1 items-stretch justify-between w-full">
+                {/* COL.1: BADGE + PROGRESSION NAME */}
+                <div className="relative flex items-stretch gap-4 max-[650px]:gap-1">
+                  {/* Badge: Open btn */}
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
+
                       const isOpen = openThemeId === progression.id;
                       setOpenThemeId(isOpen ? null : progression.id);
+
                       if (!isOpen) {
                         setAnimatingId(progression.id);
-
                         setTimeout(() => {
                           setAnimatingId(null);
                         }, 200);
                       }
                     }}
-                    className={`${theme.bgColor} cursor-pointer`}
-                  >
-                    <div
-                      className={`${styles.index} ${theme.badgeColor} select-none px-2`}
-                    >
-                      #{progIndex}
-                    </div>
-                  </button>
+                    className={`
 
-                  {/* POPOVER */}
+                        ${theme.badgeColor}
+                        min-w-6 max-[650px]:min-w-4 cursor-pointer
+                        rounded-l-xl rounded-br-xl
+                      `}
+                  ></button>
+
+                  {/* Popover */}
                   <div
                     onClick={(e) => e.stopPropagation()}
                     className={`
-                          absolute z-50 p-2 -top-1.5 -left-2
-                          rounded-2xl border border-zinc-700
-                          bg-zinc-900 shadow-2xl
-                          origin-left
-                          will-change-transform
-                          transition-all duration-500
-                          ease-[cubic-bezier(0.4,1.4,0.64,1)]
-
-                          ${
-                            isOpen
-                              ? "opacity-100 scale-x-100 scale-y-100\
-                                translate-x-0 pointer-events-auto"
-                              : "opacity-0 scale-x-0 scale-y-95\
-                                -translate-x-2 pointer-events-none select-none"
-                          }
-                        `}
+                              absolute z-50 p-2
+                              top-1/2 -translate-y-1/2 -left-2
+                              rounded-2xl border border-zinc-700
+                              bg-zinc-900 shadow-2xl
+                              origin-left
+                              will-change-transform
+                              transition-all duration-500
+                              ease-[cubic-bezier(0.4,1.4,0.64,1)]
+                              ${
+                                isOpen
+                                  ? "opacity-100 scale-x-100 scale-y-100\
+                                    translate-x-0 pointer-events-auto"
+                                  : "opacity-0 scale-x-0 scale-y-95\
+                                    -translate-x-2 pointer-events-none select-none"
+                              }
+                            `}
                   >
-                    {/* COLORS */}
+                    {/* Colors */}
                     <div className="flex gap-3">
                       {themes.map((t) => (
                         <button
@@ -418,21 +422,17 @@ export default function DescriptionPage(props) {
                             setOpenThemeId(null);
                           }}
                           className={`
-                                relative cursor-pointer
-                                w-6 h-6 rounded-full
-                                border-2
-                                transition duration-150
-                                hover:scale-110
-                                ${t.borderColor}
-                                ${t.bgColor}
-                                ${
-                                  progression.theme === t.name
-                                    ? "ring-2 ring-white scale-110"
-                                    : ""
-                                }
-                              `}
+                                    relative cursor-pointer
+                                    w-6 h-6 max-[650px]:h-4 max-[650px]:w-4 rounded-l-xl rounded-br-xl
+                                    border-2
+                                    transition duration-150
+                                    hover:scale-110
+                                    ${t.borderColor}
+                                    ${t.bgColor}
+
+                                  `}
                         >
-                          {/* ACTIVE INDICATOR */}
+                          {/* Active indicator */}
                           {progression.theme === t.name && (
                             <div className="absolute inset-0 flex items-center justify-center text-white text-xs">
                               ✓
@@ -442,23 +442,20 @@ export default function DescriptionPage(props) {
                       ))}
                     </div>
                   </div>
-                </div>
 
-                {/* Col 2 : NOM PROGRESSION */}
-                <div className="">
+                  {/* PROGRESSION NAME */}
+
                   <input
                     value={progression.label}
                     onChange={(e) =>
                       updateProgression(progression.id, "label", e.target.value)
                     }
-                    className={`${ui.input} !w-24 `}
+                    className={`${ui.input} !w-24 max-[650px]:!w-18 `}
                   />
                 </div>
 
-                {/* Col 3 CHORD + DELETE BUTTON*/}
-
                 {/* CHORDS */}
-                <div className={`${ui.grid} h-max`}>
+                <div className={`${ui.grid} inline-flex`}>
                   {progression.chords.map((chord) => (
                     <input
                       key={chord.id}
@@ -466,12 +463,13 @@ export default function DescriptionPage(props) {
                       onChange={(e) =>
                         updateChord(progression.id, chord.id, e.target.value)
                       }
-                      className={`${ui.item} w-20`}
+                      className={`${ui.item} !w-14 max-[650px]:!w-10`}
                     />
                   ))}
                 </div>
-                {/* DELETE BUTTON */}
-                <div className="flex my-auto text-purple-500">
+
+                {/* COL.2: DELETE BUTTON */}
+                <div className="flex text-purple-500">
                   <button
                     title="Supprimer la progression définitivement"
                     onClick={() => requestDeleteProgression(progression.id)}
@@ -481,9 +479,6 @@ export default function DescriptionPage(props) {
                   </button>
                 </div>
               </div>
-
-              {/* ROW 2 */}
-              <div className="flex items-center gap-4 relative"></div>
             </div>
           );
         })}
@@ -493,7 +488,7 @@ export default function DescriptionPage(props) {
       <div className="flex justify-center">
         <button
           onClick={addProgression}
-          className={`${ui.button} w-80 py-2 px-6 mt-8 hover:!w-80`}
+          className={`${ui.button} py-2 px-6 m-8`}
         >
           + Ajouter une progression
         </button>

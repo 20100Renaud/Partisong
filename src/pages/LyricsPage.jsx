@@ -4,8 +4,10 @@ import { getSong, DEMO_MODE } from "../api";
 import DragReorderList from "../components/DragReorderList";
 import LyricsBlockEditor from "../components/LyricsBlockEditor";
 import { styles, ui } from "../styles/styles";
+import { formatOptions } from "../constants/page";
 import { ConfirmModal } from "../components/Modal";
-import { Eraser} from "lucide-react";
+import Dropdown_Format from "../components/Dropdown_Format";
+import { Eraser, ArrowBigRight } from "lucide-react";
 
 export default function LyricsPage(props) {
   const [localSong, setLocalSong] = useState(null);
@@ -26,17 +28,11 @@ export default function LyricsPage(props) {
     blockId: null,
   });
   const [replaceFormat, setReplaceFormat] = useState({
-    from: "u",
-    to: "b",
+    from: "b",
+    to: "u",
   });
 
-  const formatOptions = [
-    { label: "Bold", value: "b" },
-    { label: "Italic", value: "i" },
-    { label: "Underline", value: "u" },
-    { label: "Highlight", value: "mark" },
-  ];
-
+  const [selectedFormat, setSelectedFormat] = useState("b");
 
   // Toggle
   useEffect(() => {
@@ -342,7 +338,7 @@ export default function LyricsPage(props) {
   //
 
   return (
-    <div className="mx-auto max-w-4xl rounded-xl p-10">
+    <div className="mx-auto max-w-4xl rounded-xl p-10 max-[650px]:p-4">
       {/* 1. ----------------------HEADER------------------------ */}
       {/* PAGE TITLE */}
       <div className="flex flex-col items-center justify-between mb-4">
@@ -360,78 +356,96 @@ export default function LyricsPage(props) {
 
       {/* GLOBAL FORMAT BAR */}
       <div
-        className={`${ui.section} flex justify-between py-1 mb-4 w-full gap-4  rounded-2xl`}
+        className={`${ui.section} flex max-[640px]:flex-col justify-center items-center py-1 mb-4 w-full rounded-2xl relative z-[70]`}
       >
-        (!{DEMO_MODE})={" "}
         {
-          <div>
+          <div className="flex justify-center w-full">
             <h3 className={`${styles.h3} !font-thin`}>Mise en forme globale</h3>
           </div>
         }
-        <div>
-          {/* Switch formatting */}
-          <div className="flex items-center gap-2">
-            {/* From */}
-            <div className="w-26">
-              <select
-                value={replaceFormat.from}
-                onChange={(e) =>
-                  setReplaceFormat((prev) => ({
-                    ...prev,
-                    from: e.target.value,
-                  }))
-                }
-                className={`${ui.input}`}
-              >
-                {formatOptions.map((f) => (
-                  <option key={f.value} value={f.value}>
-                    {f.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <span className="text-white text-sm">→</span>
-            {/* To */}
-            <div className="w-26">
-              <select
-                value={replaceFormat.to}
-                onChange={(e) =>
-                  setReplaceFormat((prev) => ({
-                    ...prev,
-                    to: e.target.value,
-                  }))
-                }
-                className={ui.input}
-              >
-                {formatOptions.map((f) => (
-                  <option key={f.value} value={f.value}>
-                    {f.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            {/* Apply */}
-            <button
-              disabled={replaceFormat.from === replaceFormat.to}
-              onClick={() => setReplaceConfirmOpen(true)}
-              className={`
-                ${ui.buttonSm} h-6 px-2 !rounded-lg hover:bg-purple-500
+
+        {/* Switch formatting */}
+        <div className="flex items-center gap-2 text-white max-[640px]:p-2">
+          {/* FROM */}
+          <Dropdown_Format
+            value={replaceFormat.from}
+            options={formatOptions}
+            onChange={(value) =>
+              setReplaceFormat((prev) => ({
+                ...prev,
+                from: value,
+              }))
+            }
+            className="w-11"
+            renderValue={(format) => {
+              const Icon = format?.icon;
+              return Icon ? <Icon size={16} /> : null;
+            }}
+            renderOption={(format) => {
+              const Icon = format.icon;
+
+              return (
+                <>
+                  <Icon size={16} />
+                  <span>{format.label}</span>
+                </>
+              );
+            }}
+          />
+
+          <ArrowBigRight size={16} />
+
+          {/* TO */}
+          <Dropdown_Format
+            value={replaceFormat.to}
+            options={formatOptions}
+            onChange={(value) =>
+              setReplaceFormat((prev) => ({
+                ...prev,
+                to: value,
+              }))
+            }
+            className="w-11"
+            renderValue={(format) => {
+              const Icon = format?.icon;
+              return Icon ? <Icon size={16} /> : null;
+            }}
+            renderOption={(format) => {
+              const Icon = format.icon;
+
+              return (
+                <>
+                  <Icon size={16} />
+                  <span>{format.label}</span>
+                </>
+              );
+            }}
+          />
+
+          {/* APPLY */}
+          <button
+            disabled={replaceFormat.from === replaceFormat.to}
+            onClick={() => setReplaceConfirmOpen(true)}
+            className={`
+                ${ui.buttonSm}
+                h-6 px-2 !rounded-lg
+                hover:bg-purple-500
                 disabled:opacity-40
                 disabled:cursor-not-allowed
               `}
-            >
-              Apply
-            </button>
-          </div>
+          >
+            Appliquer
+          </button>
+
+          {/* BTN CLEAR ALL FORMATTING */}
+          <button
+            title="Supprimer toutes les mises en forme du document"
+            onClick={() => requestStrip(null)}
+            className={`${ui.buttonSm} h-6 w-10 !rounded-lg`}
+          >
+            <Eraser size={20} />
+          </button>
         </div>
-        {/* Btn clear all formatting */}
-        <button
-          title="Supprimer toutes les mises en forme du document"
-          onClick={() => requestStrip(null)}
-          className={`${ui.buttonSm} h-6 w-10 !rounded-lg`}
-        >
-          <Eraser size={20} />
-        </button>
       </div>
 
       {/* 2. ----------BLOCK LIST-------------- */}
@@ -452,6 +466,8 @@ export default function LyricsPage(props) {
               progression={progression}
               song={song}
               isOpen={openBlockId === block.id}
+              selectedFormat={selectedFormat}
+              onFormatChange={setSelectedFormat}
               onToggle={toggleBlock}
               onUpdate={updateBlock}
               onContentChange={handleContentChange}
@@ -470,10 +486,7 @@ export default function LyricsPage(props) {
 
       {/* ADD BLOCK */}
       <div className="flex justify-center">
-        <button
-          onClick={addBlock}
-          className={`${ui.button} w-80 py-2 px-6 m-8 hover:!w-80`}
-        >
+        <button onClick={addBlock} className={`${ui.button} py-2 px-6 m-8`}>
           + Ajouter un block
         </button>
       </div>

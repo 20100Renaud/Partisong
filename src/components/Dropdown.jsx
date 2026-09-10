@@ -15,7 +15,6 @@ export default function Dropdown({
   const [open, setOpen] = useState(false);
   const containerRef = useRef(null);
 
-  // CLOSE ON CLICK OUTSIDE
   useEffect(() => {
     function handleClickOutside(event) {
       if (
@@ -43,7 +42,7 @@ export default function Dropdown({
   }
 
   return (
-    <div ref={containerRef} className={`relative z-50 ${className}`}>
+    <div ref={containerRef} className={`relative ${className}`}>
       {/* TRIGGER */}
       <button
         type="button"
@@ -60,8 +59,14 @@ export default function Dropdown({
       {open && (
         <div
           className={`
-            absolute z-[999] mt-1
+            absolute z-50
+            mt-1
             ${align === "right" ? "right-0" : "left-0"}
+            bg-zinc-900
+            border border-purple-900
+            rounded-lg
+            shadow-xl
+            overflow-hidden
             ${dropdownClassName}
           `}
         >

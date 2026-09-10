@@ -74,10 +74,10 @@ export default function SongDashboard({ toggleFullscreen }) {
   return (
     <div className="h-screen w-screen overflow-hidden bg-black flex items-center">
       {/* DEMO BADGE */}
-            {DEMO_MODE && <DemoBadge />}
+      {DEMO_MODE && <DemoBadge />}
 
       {/* CONTENT */}
-      <div className="mx-auto max-w-2xl bg-black rounded-xl p-10 w-full">
+      <div className="mx-auto max-w-2xl bg-black rounded-xl p-10 max-[650px]:p-4 w-full">
         {/* HEADER */}
         <div>
           <div
@@ -91,7 +91,7 @@ export default function SongDashboard({ toggleFullscreen }) {
             <button
               disabled={DEMO_MODE}
               onClick={addSong}
-              className={`${ui.button} w-80 py-2 px-6 mb-8 hover:!w-80 ${
+              className={`${ui.button} py-2 px-6 mb-8  ${
                 DEMO_MODE ? "cursor-not-allowed" : ""
               }`}
             >

@@ -247,7 +247,7 @@ db.serialize(() => {
       position INTEGER,
       show_chords INTEGER DEFAULT 0,
       mb INTEGER DEFAULT 4,
-      display_label TEXT DEFAULT 'short',
+      display_label TEXT,
 
       FOREIGN KEY(song_id) REFERENCES songs(id) ON DELETE CASCADE,
       FOREIGN KEY(progression_id) REFERENCES progressions(id) ON DELETE SET NULL

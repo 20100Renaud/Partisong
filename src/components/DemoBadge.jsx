@@ -6,7 +6,7 @@ export default function DemoBadge() {
 
   return (
     <>
-      <div className="bg-black fixed top-14 mt-1 left-1/2 -translate-x-1/2 z-[9999] rounded-full">
+      <div className="bg-black fixed top-14 mt-1 left-1/2 -translate-x-1/2 z-[70] rounded-full">
         <button
           onClick={() => setOpen(true)}
           className="

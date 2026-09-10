@@ -28,3 +28,7 @@ http://localhost:5173/api/songs/Id // Change Id for details
 VITE_DEMO_MODE=true npm run build
 npm run preview
 ```
+
+### Actions mode
+
+`Push to build and deploy`

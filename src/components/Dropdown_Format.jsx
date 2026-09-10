@@ -2,7 +2,7 @@ import { ChevronDown } from "lucide-react";
 import Dropdown from "./Dropdown";
 import { dropdownStyles, ui } from "../styles/styles";
 
-export default function FormatDropdown({
+export default function Dropdown_Format({
   value,
   options,
   onChange,
@@ -15,25 +15,27 @@ export default function FormatDropdown({
   return (
     <div className={`relative flex h-6 ${className}`}>
       {/* APPLY SELECTED FORMAT */}
-      <button
-        type="button"
-        title="Appliquer la mise en forme"
-        onMouseDown={(e) => {
-          e.preventDefault();
-          onApply();
-        }}
-        className={`
-          ${ui.buttonSm}
-          w-7 h-6
-          !rounded-l-sm
-          !rounded-r-none
-          border-r-0
-        `}
-      >
-        {renderValue(
-          options.find((option) => getOptionValue(option) === value),
-        )}
-      </button>
+      {onApply && (
+        <button
+          type="button"
+          title="Appliquer la mise en forme"
+          onMouseDown={(e) => {
+            e.preventDefault();
+            onApply();
+          }}
+          className={`
+            ${ui.buttonSm}
+            w-7 h-6
+            !rounded-l-sm
+            !rounded-r-none
+            border-r-0
+          `}
+        >
+          {renderValue(
+            options.find((option) => getOptionValue(option) === value),
+          )}
+        </button>
+      )}
 
       {/* FORMAT DROPDOWN */}
       <Dropdown
@@ -41,26 +43,30 @@ export default function FormatDropdown({
         options={options}
         onChange={onChange}
         getOptionValue={getOptionValue}
-        className="h-6 w-4"
+        className={`h-6 ${onApply ? "w-4" : "w-11"}`}
         triggerClassName={`
           ${ui.buttonSm}
-          w-4 h-6 px-0
-          !rounded-r-sm
-          !rounded-l-none
+          h-6 px-0
+          ${onApply ? "w-4 !rounded-r-sm !rounded-l-none" : "w-11 !rounded-lg"}
         `}
         dropdownClassName={`
           ${dropdownStyles.menu}
           top-full left-0 w-32
         `}
-        renderTrigger={({ open }) => (
-          <ChevronDown
-            size={12}
-            className={`
+        renderTrigger={({ open, selected }) => (
+          <div className="flex items-center justify-center gap-1 w-full">
+            {renderValue(selected)}
+
+            <ChevronDown
+              size={12}
+              className={`
+                shrink-0
                 transition-transform
                 duration-150
                 ${open ? "rotate-180" : ""}
               `}
-          />
+            />
+          </div>
         )}
         renderOption={({ option, selected }) => (
           <div

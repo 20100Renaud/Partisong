@@ -1,4 +1,4 @@
-import { styles, ui, themes } from "../styles/styles";
+import { themes } from "../styles/styles";
 
 // THEMES
 const themeMap = Object.fromEntries(themes.map((t) => [t.name, t]));
@@ -77,7 +77,7 @@ export default function Header({ song }) {
           <div className="space-y-0 text-left justify-items-start">
             <section>
               {song.progressions
-                .filter((row) => row.label !== "Intro")
+                .filter((row) => !["Intro", "Final"].includes(row.label))
                 .map((row) => {
                   const theme = getTheme(row.theme);
                   return (

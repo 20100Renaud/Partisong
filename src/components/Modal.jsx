@@ -12,7 +12,7 @@ export function ConfirmModal({
 
   return (
     <div className="fixed inset-0 z-80 flex items-center justify-center bg-black/60">
-      <div className="w-96 rounded-xl border border-zinc-700 bg-zinc-900 p-5 shadow-xl">
+      <div className="w-96 rounded-xl border border-zinc-700 bg-zinc-900 p-5 shadow-xl m-4">
         <div className="flex items-center gap-2 text-yellow-400 mb-3">
           <TriangleAlert size={18} />
           <h3 className="text-white font-semibold">{title}</h3>
@@ -46,7 +46,7 @@ export function InfoModal({ open, title = "Information", message, onClose }) {
 
   return (
     <div
-      className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/60 px-4"
+      className="fixed inset-0 z-[80] flex items-center justify-center bg-black/60 px-4"
       onClick={onClose}
     >
       <div

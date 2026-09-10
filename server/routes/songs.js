@@ -145,12 +145,45 @@ router.post("/", (req, res) => {
     strumming: ["↓", "↑", "↓", "↑", "↓", "↑", "↓", "↑"],
   };
 
+  const defaultProgressions = [
+    {
+      label: "Intro",
+      position: 1,
+      theme: "yellow",
+      content: " ",
+    },
+    {
+      label: "Couplet 1",
+      position: 2,
+      theme: "red",
+      content: "Couplet 1",
+    },
+    {
+      label: "Couplet 2",
+      position: 3,
+      theme: "green",
+      content: "Couplet 2",
+    },
+    {
+      label: "Refrain",
+      position: 4,
+      theme: "blue",
+      content: "Refrain",
+    },
+    {
+      label: "Final",
+      position: 5,
+      theme: "yellow",
+      content: " ",
+    },
+  ];
+
   db.run(
     `
     INSERT INTO songs (title, artist, capo)
     VALUES (?, ?, ?)
     `,
-    [title || "New Song", artist || "Artist", capo ?? 0],
+    [title || "Nouvelle chanson", artist || "Artiste", capo ?? 0],
     function (err) {
       if (err) {
         console.error(err);
@@ -178,12 +211,90 @@ router.post("/", (req, res) => {
             return res.status(500).json({ error: err.message });
           }
 
-          res.json({
-            id: songId,
-            title,
-            artist,
-            capo,
-            groove: grooveSeed,
+          // Create default progressions
+          const progressionStmt = db.prepare(`
+            INSERT INTO progressions
+            (song_id, label, position, theme)
+            VALUES (?, ?, ?, ?)
+          `);
+
+          defaultProgressions.forEach((progression) => {
+            progressionStmt.run(
+              songId,
+              progression.label,
+              progression.position,
+              progression.theme,
+              function (err) {
+                if (err) {
+                  console.error(err);
+                  return;
+                }
+
+                const progressionId = this.lastID;
+
+                // Create 4 empty chords
+                const chordStmt = db.prepare(`
+                  INSERT INTO chords
+                  (progression_id, value, position)
+                  VALUES (?, ?, ?)
+                `);
+
+                for (let i = 0; i < 4; i++) {
+                  chordStmt.run(progressionId, "", i);
+                }
+
+                chordStmt.finalize();
+
+                // Create 1 default lyrics block
+                const isIntroOrFinal =
+                  progression.label === "Intro" ||
+                  progression.label === "Final";
+
+                const showChords = isIntroOrFinal ? 1 : 0;
+
+                const mb =
+                  isIntroOrFinal || progression.label === "Refrain" ? 4 : 0;
+
+                const displayLabel = isIntroOrFinal ? "full" : "short";
+
+                db.run(
+                  `
+                  INSERT INTO lyrics_blocks
+                  (song_id, progression_id, content, show_chords, position, mb, display_label)
+                  VALUES (?, ?, ?, ?, ?, ?, ?)
+                  `,
+                  [
+                    songId,
+                    progressionId,
+                    progression.content,
+                    showChords,
+                    0,
+                    mb,
+                    displayLabel,
+                  ],
+                  (err) => {
+                    if (err) {
+                      console.error(err);
+                    }
+                  },
+                );
+              },
+            );
+          });
+
+          progressionStmt.finalize((err) => {
+            if (err) {
+              console.error(err);
+              return res.status(500).json({ error: err.message });
+            }
+
+            res.json({
+              id: songId,
+              title: title || "Nouvelle chanson",
+              artist: artist || "Artiste",
+              capo: capo ?? 0,
+              groove: grooveSeed,
+            });
           });
         },
       );

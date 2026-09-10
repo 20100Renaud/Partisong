@@ -2,21 +2,21 @@ export const styles = {
   h1: "text-5xl font-bold uppercase text-white",
   h2: "text-4xl font-bold uppercase text-white",
   h3: "text-sm text-purple-500 pl-2",
-  index: "text-xl font-bold rounded-l-xl rounded-br-xl px-2",
+  index: "font-bold rounded-l-xl rounded-br-xl px-2",
 };
 
 export const ui = {
   section:
-    "p-6 rounded-xl\
+    "p-6 max-[650px]:p-2 rounded-xl\
     shadow-purple-900\
     shadow-[0_0_150px_rgba(168,85,247,0.6)] \
     inset-shadow-[0_0_10px_rgba(168,85,247,0.8)]",
   innerSection:
-    "py-1 pl-6 pr-2 w-full relative overflow-visible border border-purple-900 rounded-lg  shadow-purple-900 shadow-[0_0_150px_rgba(168,85,247,0.6)] bg-black",
+    "py-1 max-[650px]:py-0 pl-6 pr-2 w-full relative overflow-visible border border-purple-900 rounded-lg  shadow-purple-900 shadow-[0_0_150px_rgba(168,85,247,0.6)] bg-black",
   input:
-    "border rounded-l-xl rounded-br-xl px-2 w-full bg-purple-600 border-none text-white resize-none overflow-hidden !bg-purple-300 !text-black",
-  grid: "bg-white border rounded-l-xl rounded-br-xl",
-  item: "w-6 border-r text-center rounded-tl-lg rounded-br-lg",
+    "border rounded-l-xl rounded-br-xl px-2 w-full bg-purple-50 border-none resize-none overflow-hidden focus:outline-none",
+  grid: "bg-purple-50 border rounded-l-xl rounded-br-xl",
+  item: "w-8  border-r text-center rounded-tl-lg rounded-br-lg",
   button:
     "group flex items-center justify-center\
     rounded-full\
@@ -34,7 +34,6 @@ export const ui = {
     relative overflow-hidden\
     active:translate-y-[2px]\
     active:shadow-[0_2px_6px_rgba(0,0,0,0.5)]\
-    hover:w-20\
     transition-all duration-150\
     cursor-pointer",
   buttonSm:
@@ -92,8 +91,8 @@ export const themes = [
 
 export const dropdownStyles = {
   menu: `
-    overflow-hidden py-1
-    rounded-lg border border-purple-400/30
+    overflow-hidden
+    rounded-lg rounded-tl-none border border-purple-400/30
     bg-zinc-900 shadow-xl shadow-black/40
   `,
 

@@ -28,12 +28,13 @@ router.post("/", (req, res) => {
     show_chords,
     position,
     mb = 4,
+    display_label,
   } = req.body;
 
   db.run(
     `
     INSERT INTO lyrics_blocks
-    (song_id, progression_id, content, show_chords, position, mb)
+    (song_id, progression_id, content, show_chords, position, mb, display_label)
     VALUES (?, ?, ?, ?, ?, ?)
     `,
     [song_id, progression_id, content, show_chords, position, mb],
@@ -48,6 +49,7 @@ router.post("/", (req, res) => {
         show_chords,
         position,
         mb,
+        display_label,
       });
     },
   );

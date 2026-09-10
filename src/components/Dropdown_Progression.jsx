@@ -2,20 +2,34 @@ import { Pencil } from "lucide-react";
 import Dropdown from "./Dropdown";
 import { dropdownStyles } from "../styles/styles";
 
-export default function ProgressionDropdown({
+export default function Dropdown_Progression({
   value,
   options,
-  displayLabel = "full",
+  displayLabel,
   theme,
   onChange,
 }) {
   function getBadgeLabel(progression) {
     if (!progression) return "";
 
-    return displayLabel === "full"
-      ? progression.label
-      : `${progression.label?.charAt(0)}${progression.position}`;
+    const defaultIsFull =
+      progression.label === "Intro" || progression.label === "Final";
+
+    const isFull =
+      displayLabel != null ? displayLabel === "full" : defaultIsFull;
+
+    if (isFull) {
+      return progression.label;
+    }
+
+    const match = progression.label?.match(/\d+$/);
+    const number = match?.[0];
+
+    const first = progression.label?.charAt(0).toUpperCase() ?? "";
+
+    return number ? `${first}${number}` : `\u00A0${first}\u00A0`;
   }
+
 
   return (
     <Dropdown
@@ -26,8 +40,8 @@ export default function ProgressionDropdown({
       className=""
       dropdownClassName={`
         ${dropdownStyles.menu}
-        left-22 top-1/2 -translate-y-1/2
-        w-full min-w-28
+        left-full -top-0.25
+        w-full min-w-28 z-70
       `}
       renderTrigger={({ selected, open }) => (
         <div
@@ -35,7 +49,7 @@ export default function ProgressionDropdown({
             ${theme.badgeColor}
             relative overflow-hidden
             rounded-l-xl rounded-br-xl
-            px-2 my-1 rounded
+            px-2 my-1
             text-white
             flex items-center justify-between gap-1
             transition-all duration-150
@@ -64,11 +78,7 @@ export default function ProgressionDropdown({
         <div
           className={`
             ${dropdownStyles.option}
-            ${
-              selected
-                ? dropdownStyles.hover
-                : dropdownStyles.selected
-            }
+            ${selected ? dropdownStyles.hover : dropdownStyles.selected}
           `}
         >
           {option.label}
