@@ -375,25 +375,46 @@ export default function StudioPage({ toggleFullscreen }) {
           <div className="h-full">
             {/* DESCRIPTION */}
             {view === "description" && (
-              <div className="h-full overflow-y-auto no-scrollbar">
-                <DescriptionPage
-                  embedded
-                  song={song}
-                  setSong={setSong}
-                  toggleFullscreen={toggleFullscreen}
-                />
+              <div className="h-full flex flex-col">
+                {DEMO_MODE && (
+                  <div
+                    style={{
+                      height: `${DEMO_SPACE / 2}px`,
+                      flexShrink: 0,
+                    }}
+                  />
+                )}
+
+                <div className="h-full overflow-y-auto no-scrollbar">
+                  <DescriptionPage
+                    embedded
+                    song={song}
+                    setSong={setSong}
+                    toggleFullscreen={toggleFullscreen}
+                  />
+                </div>
               </div>
             )}
 
             {/* LYRICS */}
             {view === "lyrics" && (
-              <div className="h-full overflow-y-auto no-scrollbar">
-                <LyricsPage
-                  embedded
-                  song={song}
-                  setSong={setSong}
-                  toggleFullscreen={toggleFullscreen}
-                />
+              <div className="h-full flex flex-col">
+                {DEMO_MODE && (
+                  <div
+                    style={{
+                      height: `${DEMO_SPACE / 2}px`,
+                      flexShrink: 0,
+                    }}
+                  />
+                )}
+                <div className="flex-1 overflow-y-auto no-scrollbar">
+                  <LyricsPage
+                    embedded
+                    song={song}
+                    setSong={setSong}
+                    toggleFullscreen={toggleFullscreen}
+                  />
+                </div>
               </div>
             )}
 

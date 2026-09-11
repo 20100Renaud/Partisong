@@ -356,7 +356,7 @@ export default function LyricsPage(props) {
 
       {/* GLOBAL FORMAT BAR */}
       <div
-        className={`${ui.section} flex max-[640px]:flex-col justify-center items-center py-1 mb-4 w-full rounded-2xl relative z-[70]`}
+        className={`${ui.section} flex max-[650px]:flex-col justify-center items-center py-1 mb-4 w-full rounded-2xl relative z-[70]`}
       >
         {
           <div className="flex justify-center w-full">
@@ -365,7 +365,7 @@ export default function LyricsPage(props) {
         }
 
         {/* Switch formatting */}
-        <div className="flex items-center gap-2 text-white max-[640px]:p-2">
+        <div className="flex items-center gap-2 text-white max-[650px]:p-2">
           {/* FROM */}
           <Dropdown_Format
             value={replaceFormat.from}

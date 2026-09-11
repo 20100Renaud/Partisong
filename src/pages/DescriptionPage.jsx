@@ -235,10 +235,10 @@ export default function DescriptionPage(props) {
 
       {/* ----------------------SONG------------------------ */}
       <section
-        className={`${ui.section} flex max-[640px]:flex-col gap-4 max-[640px]:gap-0 w-full`}
+        className={`${ui.section} flex max-[650px]:flex-col gap-4 max-[650px]:gap-0 w-full`}
       >
         {/* COL 1: Title + Artist*/}
-        <div className="max-[640px]:flex gap-4">
+        <div className="max-[650px]:flex gap-4 justify-center">
           {/* Title */}
           <div className="mb-2">
             <h3 className={styles.h3}>Titre</h3>
@@ -277,7 +277,7 @@ export default function DescriptionPage(props) {
         </div>
 
         {/* COL 2 [Groove + Capo] + [Patterne + Strumming] */}
-        <div className="flex gap-4 justify-between">
+        <div className="flex gap-4 justify-center">
           {/* [Groove + Capo] */}
           <div className="w-15">
             {/* Groove */}
