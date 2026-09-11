@@ -120,17 +120,69 @@ router.get("/:id", (req, res) => {
   });
 });
 
-// Update specifics part of a song
+// Update song
 router.patch("/:id", (req, res) => {
   const { id } = req.params;
-  const { title, artist, capo } = req.body;
+  const allowedFields = ["title", "artist", "capo"];
+
+  const updates = [];
+  const values = [];
+
+  for (const field of allowedFields) {
+    if (req.body[field] !== undefined) {
+      updates.push(`${field} = ?`);
+      values.push(req.body[field]);
+    }
+  }
+
+  if (updates.length === 0) {
+    return res.status(400).json({
+      error: "No valid fields to update",
+    });
+  }
+
+  values.push(id);
 
   db.run(
-    `UPDATE songs SET title = ?, artist = ?, capo = ? WHERE id = ?`,
-    [title, artist, capo, id],
+    `UPDATE songs SET ${updates.join(", ")} WHERE id = ?`,
+    values,
     function (err) {
-      if (err) return res.status(500).json(err);
-      res.json({ updated: this.changes });
+      if (err) {
+        return res.status(500).json(err);
+      }
+
+      res.json({
+        updated: this.changes,
+      });
+    },
+  );
+});
+
+// Update groove
+router.patch("/:id/groove", (req, res) => {
+  const { id } = req.params;
+  const { beats, pattern, strumming } = req.body;
+
+  db.run(
+    `
+    UPDATE groove
+    SET beats = ?, pattern = ?, strumming = ?
+    WHERE song_id = ?
+    `,
+    [
+      JSON.stringify(beats),
+      JSON.stringify(pattern),
+      JSON.stringify(strumming),
+      id,
+    ],
+    function (err) {
+      if (err) {
+        return res.status(500).json(err);
+      }
+
+      res.json({
+        updated: this.changes,
+      });
     },
   );
 });
@@ -245,7 +297,7 @@ router.post("/", (req, res) => {
 
                 chordStmt.finalize();
 
-                // Create 1 default lyrics block
+                // Create a default lyrics block
                 const isIntroOrFinal =
                   progression.label === "Intro" ||
                   progression.label === "Final";

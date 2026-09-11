@@ -4,6 +4,7 @@ import { Trash2 } from "lucide-react";
 import { styles, ui, themes } from "../styles/styles";
 import { ConfirmModal } from "../components/Modal";
 import { getSong, DEMO_MODE } from "../api";
+import DescriptionPage_Header from "../components/DescriptionPage_Header";
 
 export default function DescriptionPage(props) {
   const [animatingId, setAnimatingId] = useState(null);
@@ -14,7 +15,6 @@ export default function DescriptionPage(props) {
   const toggleFullscreen = props.toggleFullscreen;
   const song = embedded ? props.song : localSong;
   const [openThemeId, setOpenThemeId] = useState(null);
-
   const [confirmState, setConfirmState] = useState({
     open: false,
     progressionId: null,
@@ -25,12 +25,6 @@ export default function DescriptionPage(props) {
 
     getSong(id).then(setLocalSong).catch(console.error);
   }, [id, embedded]);
-
-  const groove = song?.groove || {
-    beats: [],
-    pattern: [],
-    strumming: [],
-  };
 
   // THEMES
   const themeMap = Object.fromEntries(themes.map((t) => [t.name, t]));
@@ -88,6 +82,50 @@ export default function DescriptionPage(props) {
     });
   }
 
+  // UPDATE GROOVE
+  async function updateGroove(groove) {
+    setSong((prev) => ({
+      ...prev,
+      groove,
+    }));
+
+    if (DEMO_MODE) return;
+
+    try {
+      await fetch(`/api/songs/${song.id}/groove`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(groove),
+      });
+    } catch (error) {
+      console.error("Failed to update groove:", error);
+    }
+  }
+
+  // UPDATE PATTERN
+  function updatePattern(index, value) {
+    const pattern = [...song.groove.pattern];
+    pattern[index] = value;
+
+    updateGroove({
+      ...song.groove,
+      pattern,
+    });
+  }
+
+  // UPDATE STRUMMING
+  function updateStrum(index, value) {
+    const strumming = [...song.groove.strumming];
+    strumming[index] = value;
+
+    updateGroove({
+      ...song.groove,
+      strumming,
+    });
+  }
+
   // ADD PROGRESSION
   async function addProgression() {
     if (DEMO_MODE) return;
@@ -118,37 +156,25 @@ export default function DescriptionPage(props) {
     }));
   }
 
-  useEffect(() => {
-    if (!song) return;
-  }, [song]);
-
   // SET BEATS
   function setBeats(n) {
-    const beats = Array.from({ length: n }, (_, i) => (i + 1).toString());
+    const currentGroove = song.groove;
 
-    setSong({
-      ...song,
-      groove: {
-        ...song.groove,
-        beats,
-        accents: Array(n).fill(""),
-        strumming: Array(n).fill("↓"),
-      },
-    });
-  }
+    const groove = {
+      beats: Array.from({ length: n }, (_, i) => (i + 1).toString()),
 
-  // UPDATE PATTERN
-  function updatePattern(index, value) {
-    const updated = structuredClone(song);
-    updated.groove.pattern[index] = value;
-    setSong(updated);
-  }
+      pattern: Array.from(
+        { length: n },
+        (_, i) => currentGroove.pattern?.[i] ?? "",
+      ),
 
-  // UPDATE STRUMMING
-  function updateStrum(index, value) {
-    const updated = structuredClone(song);
-    updated.groove.strumming[index] = value;
-    setSong(updated);
+      strumming: Array.from(
+        { length: n },
+        (_, i) => currentGroove.strumming?.[i] ?? (i % 2 === 0 ? "↓" : "↑"),
+      ),
+    };
+
+    updateGroove(groove);
   }
 
   // UPDATE LYRICS
@@ -205,8 +231,7 @@ export default function DescriptionPage(props) {
   //
   //
   //
-  // ----------------------CONTENT---------------------------------------------
-  //
+  // -------------------- CONTENT----------------------
   //
   //
   //
@@ -216,144 +241,17 @@ export default function DescriptionPage(props) {
 
   return (
     <div className="mx-auto max-w-2xl rounded-xl p-10 max-[650px]:p-4">
-      {/* 1. ----------------------HEADER------------------------ */}
-      <div className="flex flex-col items-center justify-between mb-8">
-        {/* PAGE TITLE */}
-        <div
-          onClick={toggleFullscreen}
-          className="flex flex-row justify-center mx-auto cursor-pointer hover:opacity-80 transition"
-        >
-          <h2 className={`${styles.h2}`}>Descrip</h2>
-          <h2 className={`${styles.h2} !font-thin`}>Song</h2>
-        </div>
-        <div>
-          <h3 className={`${styles.h3} !font-thin`}>
-            Structure et pattern de la chanson
-          </h3>
-        </div>
-      </div>
-
-      {/* ----------------------SONG------------------------ */}
-      <section
-        className={`${ui.section} flex max-[650px]:flex-col gap-4 max-[650px]:gap-0 w-full`}
-      >
-        {/* COL 1: Title + Artist*/}
-        <div className="max-[650px]:flex gap-4 justify-center">
-          {/* Title */}
-          <div className="mb-2">
-            <h3 className={styles.h3}>Titre</h3>
-            <input
-              readOnly={DEMO_MODE}
-              value={song.title}
-              onChange={(e) =>
-                setSong({
-                  ...song,
-                  title: e.target.value,
-                })
-              }
-              className={`${ui.input} ${
-                DEMO_MODE ? "cursor-default opacity-80" : ""
-              }`}
-            />
-          </div>
-
-          {/* Artist */}
-          <div className="">
-            <h3 className={styles.h3}>Artiste</h3>
-            <input
-              readOnly={DEMO_MODE}
-              value={song.artist}
-              onChange={(e) =>
-                setSong({
-                  ...song,
-                  artist: e.target.value,
-                })
-              }
-              className={`${ui.input} ${
-                DEMO_MODE ? "cursor-default opacity-80" : ""
-              }`}
-            />
-          </div>
-        </div>
-
-        {/* COL 2 [Groove + Capo] + [Patterne + Strumming] */}
-        <div className="flex gap-4 justify-center">
-          {/* [Groove + Capo] */}
-          <div className="w-15">
-            {/* Groove */}
-            <div className="mb-2">
-              <h3 className={styles.h3}>Groove</h3>
-              <input
-                readOnly={DEMO_MODE}
-                type="number"
-                min="4"
-                max="8"
-                value={song.groove?.beats?.length || 8}
-                onChange={(e) => setBeats(Number(e.target.value))}
-                className={`${ui.input} ${
-                  DEMO_MODE ? "cursor-default opacity-80" : ""
-                }`}
-              />
-            </div>
-            {/* Capo */}
-            <div className="">
-              <h3 className={styles.h3}>Capo</h3>
-              <input
-                readOnly={DEMO_MODE}
-                type="number"
-                value={song.capo}
-                onChange={(e) =>
-                  setSong({
-                    ...song,
-                    capo: Number(e.target.value),
-                  })
-                }
-                className={`${ui.input} ${
-                  DEMO_MODE ? "cursor-default opacity-80" : ""
-                }`}
-              />
-            </div>
-          </div>
-
-          {/* [Patterne + Strumming] */}
-          <div className="">
-            {/* Pattern */}
-            <div className="mb-2">
-              <h3 className={styles.h3}>Pattern</h3>
-              <div className={`${ui.grid} w-max`}>
-                {song.groove.beats.map((beat, i) => (
-                  <input
-                    readOnly={DEMO_MODE}
-                    key={i}
-                    value={song.groove.pattern[i]}
-                    onChange={(e) => updatePattern(i, e.target.value)}
-                    className={`${ui.item} ${i === song.groove.beats.length - 1 ? "border-r-0" : ""}`}
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* Strumming */}
-            <div className="">
-              <h3 className={styles.h3}>Rythmique</h3>
-              <div className={`${ui.grid} w-max`}>
-                {song.groove.beats.map((beat, i) => (
-                  <input
-                    readOnly={DEMO_MODE}
-                    key={i}
-                    value={song.groove.strumming[i]}
-                    onChange={(e) => updateStrum(i, e.target.value)}
-                    className={`${ui.item} ${i === song.groove.beats.length - 1 ? "border-r-0" : ""}`}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* 1. ------------ HEADER + SONG DESCRIPTION ---------------- */}
+      <DescriptionPage_Header
+        song={song}
+        toggleFullscreen={toggleFullscreen}
+        setSong={setSong}
+        setBeats={setBeats}
+        updatePattern={updatePattern}
+        updateStrum={updateStrum}
+      />
 
       {/* 2. ------------PROGRESSIONS ------------*/}
-
       <section className={`${ui.section} space-y-4 mt-6 mx-auto shadow-xl`}>
         {song.progressions.map((progression, progIndex) => {
           const theme = getTheme(progression.theme);
@@ -444,7 +342,6 @@ export default function DescriptionPage(props) {
                   </div>
 
                   {/* PROGRESSION NAME */}
-
                   <input
                     value={progression.label}
                     onChange={(e) =>
@@ -455,7 +352,7 @@ export default function DescriptionPage(props) {
                 </div>
 
                 {/* CHORDS */}
-                <div className={`${ui.grid} inline-flex`}>
+                <div className={`${ui.input} inline-flex !w-fit !px-0`}>
                   {progression.chords.map((chord) => (
                     <input
                       key={chord.id}
@@ -463,7 +360,7 @@ export default function DescriptionPage(props) {
                       onChange={(e) =>
                         updateChord(progression.id, chord.id, e.target.value)
                       }
-                      className={`${ui.item} !w-14 max-[650px]:!w-10`}
+                      className={`${ui.item} w-14 max-[650px]:!w-10`}
                     />
                   ))}
                 </div>

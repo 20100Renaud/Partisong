@@ -12,11 +12,16 @@ export const ui = {
     shadow-[0_0_150px_rgba(168,85,247,0.6)] \
     inset-shadow-[0_0_10px_rgba(168,85,247,0.8)]",
   innerSection:
-    "py-1 max-[650px]:py-0 p-2 w-full relative overflow-visible border border-purple-900 rounded-lg bg-black",
+    "py-1 max-[650px]:py-0 p-2 \
+    w-full relative overflow-visible \
+    border border-purple-900 \
+    rounded-lg bg-black",
   input:
-    "border rounded-l-xl rounded-br-xl px-2 w-full bg-purple-50 border-none resize-none overflow-hidden focus:outline-none",
-  grid: "bg-purple-50 border rounded-l-xl rounded-br-xl",
-  item: "w-8  border-r text-center rounded-tl-lg rounded-br-lg",
+    "rounded-tl-lg rounded-br-lg px-2\
+    w-full bg-purple-50 \
+    resize-none overflow-hidden \
+    focus:outline-none",
+  item: "border-r text-center rounded-tl-lg rounded-br-lg",
   button:
     "group flex items-center justify-center\
     rounded-full\

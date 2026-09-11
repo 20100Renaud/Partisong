@@ -1,4 +1,4 @@
-import Header from "../components/Header";
+import PrintPage_Header from "../components/PrintPage_Header";
 import LyricsBlock from "../components/LyricsBlock";
 import { PAGE_WIDTH, PAGE_HEIGHT } from "../constants/page";
 import { forwardRef } from "react";
@@ -25,7 +25,7 @@ const PrintPage = forwardRef(({ song, orderedBlocks = [], zoom = 1 }, ref) => {
           transformOrigin: "top left",
         }}
       >
-        <Header song={song} />
+        <PrintPage_Header song={song} />
 
         <div
           className="mt-8 flex-1 min-h-0"

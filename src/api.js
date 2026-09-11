@@ -34,8 +34,19 @@ export async function getSong(id) {
   const response = await fetch(`/api/songs/${id}`);
 
   if (!response.ok) {
-    throw new Error("Failed to fetch song");
+    const errorText = await response.text();
+
+    console.error("GET /api/songs failed:", {
+      status: response.status,
+      statusText: response.statusText,
+      body: errorText,
+    });
+
+    throw new Error(
+      `Failed to fetch song (${response.status} ${response.statusText})`,
+    );
   }
 
   return response.json();
 }
+

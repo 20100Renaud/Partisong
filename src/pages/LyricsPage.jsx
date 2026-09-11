@@ -3,11 +3,9 @@ import { useParams } from "react-router-dom";
 import { getSong, DEMO_MODE } from "../api";
 import LyricsBlockEditor from "../components/LyricsBlockEditor";
 import LyricsPage_Header from "../components/LyricsPage_Header";
-import { styles, ui } from "../styles/styles";
+import { ui } from "../styles/styles";
 import { formatOptions } from "../constants/page";
 import { ConfirmModal } from "../components/Modal";
-import Dropdown_Format from "../components/Dropdown_Format";
-import { Eraser, ArrowBigRight } from "lucide-react";
 import { motion } from "framer-motion";
 
 
