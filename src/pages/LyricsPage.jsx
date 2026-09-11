@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { getSong, DEMO_MODE } from "../api";
 import LyricsBlockEditor from "../components/LyricsBlockEditor";
+import LyricsPage_Header from "../components/LyricsPage_Header";
 import { styles, ui } from "../styles/styles";
 import { formatOptions } from "../constants/page";
 import { ConfirmModal } from "../components/Modal";
@@ -373,163 +374,64 @@ export default function LyricsPage(props) {
     <div className="mx-auto max-w-4xl rounded-xl p-10 max-[650px]:p-4">
       {/* 1. ----------------------HEADER------------------------ */}
       {/* PAGE TITLE */}
-      <div className="flex flex-col items-center justify-between mb-4">
-        <div
-          onClick={toggleFullscreen}
-          className="flex flex-row justify-center mx-auto cursor-pointer hover:opacity-80 transition"
-        >
-          <h2 className={`${styles.h2}`}>Chan</h2>
-          <h2 className={`${styles.h2} !font-thin`}>Song</h2>
-        </div>
-        <div>
-          <h3 className={`${styles.h3} !font-thin`}>Couplets et paroles</h3>
-        </div>
-      </div>
-
-      {/* GLOBAL FORMAT BAR */}
-      <div
-        className={`${ui.section} flex max-[650px]:flex-col justify-center items-center py-1 mb-4 w-full rounded-2xl relative z-[70]`}
-      >
-        {
-          <div className="flex justify-center w-full">
-            <h3 className={`${styles.h3} !font-thin`}>Mise en forme globale</h3>
-          </div>
-        }
-
-        {/* Switch formatting */}
-        <div className="flex items-center gap-2 text-white max-[650px]:p-2">
-          {/* FROM */}
-          <Dropdown_Format
-            value={replaceFormat.from}
-            options={formatOptions}
-            onChange={(value) =>
-              setReplaceFormat((prev) => ({
-                ...prev,
-                from: value,
-              }))
-            }
-            className="w-11"
-            renderValue={(format) => {
-              const Icon = format?.icon;
-              return Icon ? <Icon size={16} /> : null;
-            }}
-            renderOption={(format) => {
-              const Icon = format.icon;
-
-              return (
-                <>
-                  <Icon size={16} />
-                  <span>{format.label}</span>
-                </>
-              );
-            }}
-          />
-
-          <ArrowBigRight size={16} />
-
-          {/* TO */}
-          <Dropdown_Format
-            value={replaceFormat.to}
-            options={formatOptions}
-            onChange={(value) =>
-              setReplaceFormat((prev) => ({
-                ...prev,
-                to: value,
-              }))
-            }
-            className="w-11"
-            renderValue={(format) => {
-              const Icon = format?.icon;
-              return Icon ? <Icon size={16} /> : null;
-            }}
-            renderOption={(format) => {
-              const Icon = format.icon;
-
-              return (
-                <>
-                  <Icon size={16} />
-                  <span>{format.label}</span>
-                </>
-              );
-            }}
-          />
-
-          {/* APPLY */}
-          <button
-            disabled={replaceFormat.from === replaceFormat.to}
-            onClick={() => setReplaceConfirmOpen(true)}
-            className={`
-                ${ui.buttonSm}
-                h-6 px-2 !rounded-lg
-                hover:bg-purple-500
-                disabled:opacity-40
-                disabled:cursor-not-allowed
-              `}
-          >
-            Appliquer
-          </button>
-
-          {/* BTN CLEAR ALL FORMATTING */}
-          <button
-            title="Supprimer toutes les mises en forme du document"
-            onClick={() => requestStrip(null)}
-            className={`${ui.buttonSm} h-6 w-10 !rounded-lg`}
-          >
-            <Eraser size={20} />
-          </button>
-        </div>
-      </div>
+      <LyricsPage_Header
+        toggleFullscreen={toggleFullscreen}
+        replaceFormat={replaceFormat}
+        setReplaceFormat={setReplaceFormat}
+        onOpenReplaceConfirm={() => setReplaceConfirmOpen(true)}
+        onClearFormatting={() => requestStrip(null)}
+      />
 
       {/* 2. ----------BLOCK LIST-------------- */}
       <div className={`${ui.section}`}>
-          {blocks.map((block, index) => {
-            const progression = song.progressions.find(
-              (p) => p.id === block.progression_id,
-            );
+        {blocks.map((block, index) => {
+          const progression = song.progressions.find(
+            (p) => p.id === block.progression_id,
+          );
 
-            if (!progression) return null;
+          if (!progression) return null;
 
-            return (
-              <motion.div
-                key={block.id}
-                layout="position"
-                transition={{
-                  layout: {
-                    duration: 0.2,
-                    ease: "easeInOut",
-                  },
-                }}
-                className="relative"
-                style={{
-                  marginBottom: `${(block.mb ?? 0) * 4}px`,
-                }}
-              >
-                <LyricsBlockEditor
-                  block={block}
-                  progression={progression}
-                  song={song}
-                  isOpen={openBlockId === block.id}
-                  selectedFormat={selectedFormat}
-                  onFormatChange={setSelectedFormat}
-                  onToggle={toggleBlock}
-                  onUpdate={updateBlock}
-                  onContentChange={handleContentChange}
-                  onContentBlur={handleContentBlur}
-                  onRequestStrip={requestStrip}
-                  onRequestDelete={(blockId) =>
-                    setDeleteConfirm({
-                      open: true,
-                      blockId,
-                    })
-                  }
-                  onMoveUp={() => moveBlock(block.id, -1)}
-                  onMoveDown={() => moveBlock(block.id, 1)}
-                  canMoveUp={index > 0}
-                  canMoveDown={index < blocks.length - 1}
-                />
-              </motion.div>
-            );
-          })}
+          return (
+            <motion.div
+              key={block.id}
+              layout="position"
+              transition={{
+                layout: {
+                  duration: 0.2,
+                  ease: "easeInOut",
+                },
+              }}
+              className="relative"
+              style={{
+                marginBottom: `${(block.mb ?? 0) * 4}px`,
+              }}
+            >
+              <LyricsBlockEditor
+                block={block}
+                progression={progression}
+                song={song}
+                isOpen={openBlockId === block.id}
+                selectedFormat={selectedFormat}
+                onFormatChange={setSelectedFormat}
+                onToggle={toggleBlock}
+                onUpdate={updateBlock}
+                onContentChange={handleContentChange}
+                onContentBlur={handleContentBlur}
+                onRequestStrip={requestStrip}
+                onRequestDelete={(blockId) =>
+                  setDeleteConfirm({
+                    open: true,
+                    blockId,
+                  })
+                }
+                onMoveUp={() => moveBlock(block.id, -1)}
+                onMoveDown={() => moveBlock(block.id, 1)}
+                canMoveUp={index > 0}
+                canMoveDown={index < blocks.length - 1}
+              />
+            </motion.div>
+          );
+        })}
       </div>
 
       {/* ADD BLOCK */}
