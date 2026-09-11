@@ -7,7 +7,7 @@ export const styles = {
 
 export const ui = {
   section:
-    "p-6 max-[650px]:p-2 rounded-xl\
+    "p-6 max-[650px]:p-2 max-[650px]:pb-4 rounded-xl\
     shadow-purple-900\
     shadow-[0_0_150px_rgba(168,85,247,0.6)] \
     inset-shadow-[0_0_10px_rgba(168,85,247,0.8)]",

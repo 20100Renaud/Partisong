@@ -50,6 +50,24 @@ export default function DescriptionPage_Header({
     }
   }
 
+  // SWITCH GROOVE STYLE
+  const getGrooveToggleClass = (value, index) => {
+    const active = song.groove?.beats?.length === value;
+
+    return `
+    ${ui.input}
+    !rounded-none
+    transition
+    ${index === 0 ? "!rounded-tl-lg !rounded-br-lg" : ""}
+    ${index === 1 ? "!rounded-tr-lg !rounded-bl-lg" : ""}
+    ${
+      active
+        ? "bg-purple-600 text-white border-purple-500"
+        : "bg-purple-300 text-black/60 hover:opacity-100 cursor-pointer"
+    }
+  `;
+  };
+
   return (
     <>
       {/* PAGE HEADER */}
@@ -80,10 +98,10 @@ export default function DescriptionPage_Header({
             <h3 className={styles.h3}>Titre</h3>
 
             <input
-              readOnly={DEMO_MODE}
+
               value={song.title}
               onChange={(e) => updateSong("title", e.target.value)}
-              className={`${ui.input} ${
+              className={`${ui.input} !w-40 ${
                 DEMO_MODE ? "cursor-default opacity-80" : ""
               }`}
             />
@@ -94,10 +112,10 @@ export default function DescriptionPage_Header({
             <h3 className={styles.h3}>Artiste</h3>
 
             <input
-              readOnly={DEMO_MODE}
+
               value={song.artist}
               onChange={(e) => updateSong("artist", e.target.value)}
-              className={`${ui.input} ${
+              className={`${ui.input} !w-40 ${
                 DEMO_MODE ? "cursor-default opacity-80" : ""
               }`}
             />
@@ -107,13 +125,13 @@ export default function DescriptionPage_Header({
         {/* COL 2: [GROOVE + CAPO] + [PATTERN + STRUMMING] */}
         <div className="flex gap-4 justify-between">
           {/* CAPO + GROOVE */}
-          <div className="flex flex-col max-[650px]:flex-row gap-2 items-center justify-around flex-1">
+          <div className="flex flex-col max-[650px]:flex-row gap-2 items-center justify-between flex-1">
             {/* CAPO */}
             <div className="w-8">
               <h3 className={`${styles.h3} !pl-0 text-center`}>Capo</h3>
 
               <input
-                readOnly={DEMO_MODE}
+
                 type="number"
                 min="0"
                 value={capoInput}
@@ -144,33 +162,18 @@ export default function DescriptionPage_Header({
             {/* GROOVE */}
             <div className="w-15 max-[650px]:w-12">
               <h3 className={`${styles.h3} !pl-0 text-center`}>Groove</h3>
+
               <div className="flex">
-                {[4, 8].map((value) => {
-                  const active = song.groove?.beats?.length === value;
-                  return (
-                    <button
-                      key={value}
-                      type="button"
-                      disabled={DEMO_MODE}
-                      onClick={() => setBeats(value)}
-                      className={`
-                            ${ui.input}
-                            !rounded-none
-                            first:!rounded-l-xl
-                            last:!rounded-r-xl
-                            transition
-                            ${
-                              active
-                                ? "bg-purple-600 text-white border-purple-500"
-                                : "bg-purple-300 opacity-80 hover:opacity-100 text-black/60 cursor-pointer"
-                            }
-                            ${DEMO_MODE ? "cursor-default opacity-80" : ""}
-                          `}
-                    >
-                      {value}
-                    </button>
-                  );
-                })}
+                {[4, 8].map((value, index) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => setBeats(value)}
+                    className={getGrooveToggleClass(value, index)}
+                  >
+                    {value}
+                  </button>
+                ))}
               </div>
             </div>
           </div>
@@ -183,7 +186,6 @@ export default function DescriptionPage_Header({
               <div className={`${ui.input} !px-0`}>
                 {song.groove.beats.map((beat, i) => (
                   <input
-                    readOnly={DEMO_MODE}
                     key={i}
                     value={song.groove.pattern[i]}
                     onChange={(e) => updatePattern(i, e.target.value)}
@@ -199,7 +201,6 @@ export default function DescriptionPage_Header({
               <div className={`${ui.input} !px-0`}>
                 {song.groove.beats.map((beat, i) => (
                   <input
-                    readOnly={DEMO_MODE}
                     key={i}
                     value={song.groove.strumming[i]}
                     onChange={(e) => updateStrum(i, e.target.value)}

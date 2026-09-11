@@ -252,7 +252,7 @@ export default function DescriptionPage(props) {
       />
 
       {/* 2. ------------PROGRESSIONS ------------*/}
-      <section className={`${ui.section} space-y-4 mt-6 mx-auto shadow-xl`}>
+      <section className={`${ui.section} w-fit space-y-4 mt-6 mx-auto shadow-xl`}>
         {song.progressions.map((progression, progIndex) => {
           const theme = getTheme(progression.theme);
           const isOpen = openThemeId === progression.id;
@@ -260,11 +260,11 @@ export default function DescriptionPage(props) {
           return (
             <div
               key={progIndex}
-              className={`border rounded-2xl p-2 flex ${theme.borderColor} ${theme.bgColorDescription}`}
+              className={`border rounded-2xl p-2 flex w-fit ${theme.borderColor} ${theme.bgColorDescription}`}
             >
-              <div className="flex flex-1 items-stretch justify-between w-full">
+              <div className="flex gap-2">
                 {/* COL.1: BADGE + PROGRESSION NAME */}
-                <div className="relative flex items-stretch gap-4 max-[650px]:gap-1">
+                <div className="relative flex gap-4 max-[650px]:gap-1">
                   {/* Badge: Open btn */}
                   <button
                     onClick={(e) => {
