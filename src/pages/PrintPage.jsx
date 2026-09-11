@@ -17,10 +17,10 @@ const PrintPage = forwardRef(({ song, orderedBlocks = [], zoom = 1 }, ref) => {
     >
       <div
         ref={ref}
-        className="bg-white border p-6 overflow-hidden"
+        className="bg-white border p-6 overflow-hidden flex flex-col"
         style={{
           width: `${PAGE_WIDTH}px`,
-          minHeight: `${PAGE_HEIGHT}px`,
+          height: `${PAGE_HEIGHT}px`,
           transform: `scale(${zoom})`,
           transformOrigin: "top left",
         }}
@@ -28,10 +28,11 @@ const PrintPage = forwardRef(({ song, orderedBlocks = [], zoom = 1 }, ref) => {
         <Header song={song} />
 
         <div
-          className="mt-8"
+          className="mt-8 flex-1 min-h-0"
           style={{
             columnCount: 2,
             columnGap: "5px",
+            columnFill: "auto",
           }}
         >
           {orderedBlocks.map((block) => {

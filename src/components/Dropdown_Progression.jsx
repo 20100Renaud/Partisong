@@ -52,7 +52,7 @@ export default function Dropdown_Progression({
             px-2 my-1
             text-white
             flex items-center justify-between gap-1
-            transition-all duration-150
+            transition-all duration-150 cursor-pointer
             ${open ? "ring-1 ring-purple-300/60" : ""}
           `}
         >
