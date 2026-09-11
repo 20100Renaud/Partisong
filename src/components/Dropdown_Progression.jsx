@@ -30,46 +30,43 @@ export default function Dropdown_Progression({
     return number ? `${first}${number}` : `\u00A0${first}\u00A0`;
   }
 
-
   return (
     <Dropdown
       value={value}
       options={options}
       onChange={onChange}
       getOptionValue={(option) => option.id}
-      className=""
+      className="w-fit"
       dropdownClassName={`
-        ${dropdownStyles.menu}
-        left-full -top-0.25
-        w-full min-w-28 z-70
-      `}
+          ${dropdownStyles.menu}
+          left-full -top-0.25
+          w-full min-w-28 z-70
+        `}
       renderTrigger={({ selected, open }) => (
         <div
           className={`
-            ${theme.badgeColor}
-            relative overflow-hidden
-            rounded-l-xl rounded-br-xl
-            px-2 my-1
-            text-white
-            flex items-center justify-between gap-1
-            transition-all duration-150 cursor-pointer
-            ${open ? "ring-1 ring-purple-300/60" : ""}
-          `}
+              ${theme.badgeColor}
+              relative overflow-hidden
+              rounded-l-xl rounded-br-xl
+              pl-1 pr-0.5
+              text-white
+              flex items-center justify-between gap-1
+              transition-all duration-150 cursor-pointer
+              ${open ? "ring-1 ring-purple-300/60" : ""}
+            `}
         >
           <span className="absolute inset-0 bg-black/30 pointer-events-none" />
-
           <span className="relative z-10 truncate text-left select-none">
             {getBadgeLabel(selected)}
           </span>
-
           <span className="relative z-10 flex items-center shrink-0">
             <Pencil
               size={12}
               className={`
-                transition-transform
-                duration-150
-                ${open ? "-rotate-135" : ""}
-              `}
+                  transition-transform
+                  duration-150
+                  ${open ? "-rotate-135" : ""}
+                `}
             />
           </span>
         </div>
@@ -77,9 +74,9 @@ export default function Dropdown_Progression({
       renderOption={({ option, selected }) => (
         <div
           className={`
-            ${dropdownStyles.option}
-            ${selected ? dropdownStyles.hover : dropdownStyles.selected}
-          `}
+              ${dropdownStyles.option}
+              ${selected ? dropdownStyles.hover : dropdownStyles.selected}
+            `}
         >
           {option.label}
         </div>

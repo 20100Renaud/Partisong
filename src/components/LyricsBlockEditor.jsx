@@ -8,6 +8,7 @@ import {
   Music4,
   EyeOff,
   ChevronDown,
+  ChevronUp,
   ChevronRight,
   Eraser,
   RemoveFormatting,
@@ -30,13 +31,28 @@ export default function LyricsBlockEditor({
   onContentBlur,
   onRequestStrip,
   onRequestDelete,
+  onMoveUp,
+  onMoveDown,
+  canMoveUp,
+  canMoveDown,
 }) {
   const textareaRef = useRef(null);
 
   const themeMap = Object.fromEntries(themes.map((t) => [t.name, t]));
   const theme = themeMap[progression?.theme] || themes[0];
+  const moveButtonClass = `
+    px-1
+    rounded
+    text-purple-400
+    hover:bg-white/10
+    hover:text-purple-200
+    disabled:opacity-20
+    disabled:cursor-not-allowed
+    cursor-pointer
+  `;
 
   useEffect(() => {
+    if (!isOpen) return;
     const textarea = textareaRef.current;
 
     if (!textarea) return;
@@ -128,12 +144,35 @@ export default function LyricsBlockEditor({
 
   return (
     <div className={`${ui.innerSection}`}>
-      <div className="relative">
-        {/* VISIBLE BAR */}
-        <div className="flex gap-4 w-full items-center justify-between">
-          {/* BLOCK 1 */}
-          <div className="flex gap-2 w-20 items-center">
-            {/* PROGRESSION */}
+      {/* VISIBLE BAR */}
+      <div className="flex w-full items-center justify-between">
+        {/* BLOCK 1: Expand + Badge + Lebel size */}
+        <div className="flex items-center">
+          {/* EXPAND BTNS */}
+          <div className="flex flex-col">
+            <button
+              type="button"
+              onClick={onMoveUp}
+              disabled={!canMoveUp}
+              className={moveButtonClass}
+              title="Déplacer vers le haut"
+            >
+              <ChevronUp size={16} />
+            </button>
+
+            <button
+              type="button"
+              onClick={onMoveDown}
+              disabled={!canMoveDown}
+              className={moveButtonClass}
+              title="Déplacer vers le bas"
+            >
+              <ChevronDown size={16} />
+            </button>
+          </div>
+
+          {/* PROGRESSION */}
+          <div className="w-14 max-[650px]:w-12 flex justify-end mr-2">
             <Dropdown_Progression
               value={block.progression_id}
               options={song.progressions}
@@ -145,33 +184,32 @@ export default function LyricsBlockEditor({
                 })
               }
             />
+          </div>
 
-            {/* LABEL SIZE */}
-            <div className="flex items-center">
-              {(() => {
-                const defaultIsFull =
-                  progression?.label === "Intro" ||
-                  progression?.label === "Final";
+          {/* LABEL SIZE */}
+          <div className="flex items-center">
+            {(() => {
+              const defaultIsFull =
+                progression?.label === "Intro" ||
+                progression?.label === "Final";
 
-                const isFull =
-                  block.display_label != null
-                    ? block.display_label === "full"
-                    : defaultIsFull;
+              const isFull =
+                block.display_label != null
+                  ? block.display_label === "full"
+                  : defaultIsFull;
 
-                return (
-                  <button
-                    type="button"
-                    title={
-                      isFull
-                        ? "Afficher le nom court"
-                        : "Afficher le nom complet"
-                    }
-                    onClick={() =>
-                      onUpdate(block.id, {
-                        display_label: isFull ? "short" : "full",
-                      })
-                    }
-                    className={`
+              return (
+                <button
+                  type="button"
+                  title={
+                    isFull ? "Afficher le nom court" : "Afficher le nom complet"
+                  }
+                  onClick={() =>
+                    onUpdate(block.id, {
+                      display_label: isFull ? "short" : "full",
+                    })
+                  }
+                  className={`
                       flex items-center justify-left
                       w-6 h-7 rounded
                       text-white text-xs
@@ -180,59 +218,59 @@ export default function LyricsBlockEditor({
                       hover:text-purple-400
                       hover:font-bold
                     `}
-                  >
-                    {isFull ? "Abc" : "A"}
-                  </button>
-                );
-              })()}
-            </div>
+                >
+                  {isFull ? "Abc" : "A"}
+                </button>
+              );
+            })()}
           </div>
+        </div>
 
-          {/* EXPAND TOGGLE + PREVIEW LYRICS */}
-          <button
-            type="button"
-            onClick={() => onToggle(block.id)}
-            className="
+        {/* EXPAND TOGGLE + PREVIEW LYRICS */}
+        <button
+          type="button"
+          onClick={() => onToggle(block.id)}
+          className="
                   flex flex-1 items-center min-w-0 min-[650px]:ml-4
                   text-white/50 text-left
                   hover:text-purple-400
                   hover:font-bold
                   cursor-pointer
                 "
-          >
-            <span className="shrink-0">
-              {isOpen ? <ChevronDown /> : <ChevronRight />}
-            </span>
-            <span
-              className={`
+        >
+          <span className="shrink-0">
+            {isOpen ? <ChevronDown /> : <ChevronRight />}
+          </span>
+          <span
+            className={`
                 truncate
                 whitespace-nowrap overflow-hidden
                 transition-opacity duration-150
                 ${isOpen ? "opacity-0" : "opacity-100"}
               `}
-              dangerouslySetInnerHTML={{
-                __html: sanitizeLyricsHtml(block.content),
-              }}
-            />
-          </button>
+            dangerouslySetInnerHTML={{
+              __html: sanitizeLyricsHtml(block.content),
+            }}
+          />
+        </button>
 
-          {/* BLOCK 2: Show chords + Mb */}
-          <div className="flex gap-4">
-            <div className="flex">
-              {/* CHORDS */}
-              <div className="pt-1">
-                <div
-                  title={
-                    block.show_chords
-                      ? "Cacher les accords"
-                      : "Montrer les accords"
-                  }
-                  onClick={() =>
-                    onUpdate(block.id, {
-                      show_chords: block.show_chords ? 0 : 1,
-                    })
-                  }
-                  className={`
+        {/* BLOCK 2: Show chords + Mb */}
+        <div className="flex gap-4">
+          <div className="flex">
+            {/* CHORDS */}
+            <div className="pt-1">
+              <div
+                title={
+                  block.show_chords
+                    ? "Cacher les accords"
+                    : "Montrer les accords"
+                }
+                onClick={() =>
+                  onUpdate(block.id, {
+                    show_chords: block.show_chords ? 0 : 1,
+                  })
+                }
+                className={`
                     flex items-center justify-center
                     w-7 h-7
                     cursor-pointer select-none
@@ -243,59 +281,68 @@ export default function LyricsBlockEditor({
                         : "text-purple-400 hover:text-purple-300"
                     }
                   `}
-                >
-                  {block.show_chords ? (
-                    <Music4 size={18} />
-                  ) : (
-                    <EyeOff size={18} />
-                  )}
-                </div>
+              >
+                {block.show_chords ? (
+                  <Music4 size={18} />
+                ) : (
+                  <EyeOff size={18} />
+                )}
               </div>
-              {/* Mb toggle */}
-              <div className="pt-1">
-                <button
-                  type="button"
-                  title={
-                    (block.mb ?? 0) === 4
-                      ? "Réduire l'espace après ce block"
-                      : "Augmenter l'espace après ce block"
-                  }
-                  onClick={() =>
-                    onUpdate(block.id, {
-                      mb: (block.mb ?? 0) === 4 ? 0 : 4,
-                    })
-                  }
-                  className={`
+            </div>
+            {/* Mb toggle */}
+            <div className="pt-1">
+              <button
+                type="button"
+                title={
+                  (block.mb ?? 0) === 4
+                    ? "Réduire l'espace après ce block"
+                    : "Augmenter l'espace après ce block"
+                }
+                onClick={() =>
+                  onUpdate(block.id, {
+                    mb: (block.mb ?? 0) === 4 ? 0 : 4,
+                  })
+                }
+                className={`
                   flex items-center justify-center
                   w-7 h-7
                   cursor-pointer
                   transition-colors duration-150
                   ${(block.mb ?? 0) === 4 ? "text-amber-400" : "text-green-400"}
                 `}
-                >
-                  {(block.mb ?? 0) === 4 ? (
-                    <ListChevronsDownUp size={18} />
-                  ) : (
-                    <ListChevronsUpDown size={18} />
-                  )}
-                </button>
-              </div>
+              >
+                {(block.mb ?? 0) === 4 ? (
+                  <ListChevronsDownUp size={18} />
+                ) : (
+                  <ListChevronsUpDown size={18} />
+                )}
+              </button>
             </div>
-            {/* BLOCK 3 : DELETE */}
-            <button
-              title="Supprimer le block définitivement"
-              onClick={() => onRequestDelete(block.id)}
-              className="group text-red-500 transition-colors duration-150 cursor-pointer"
-            >
-              <Trash2 size={18} className="group-hover:hidden " />
-              <X size={18} className="hidden group-hover:block " />
-            </button>
           </div>
+          {/* BLOCK 3 : DELETE */}
+          <button
+            title="Supprimer le block définitivement"
+            onClick={() => onRequestDelete(block.id)}
+            className="group text-red-500 transition-colors duration-150 cursor-pointer"
+          >
+            <Trash2 size={18} className="group-hover:hidden " />
+            <X size={18} className="hidden group-hover:block " />
+          </button>
         </div>
+      </div>
 
-        {/* HIDDEN PART */}
-        {isOpen && (
-          <div className="flex max-[650px]:flex-col gap-2 mb-4 -ml-2 w-full max-[650px]:items-center">
+      {/* HIDDEN PART */}
+      <div
+        className={`
+            grid
+            transition-[grid-template-rows]
+            duration-200
+            ease-out
+            ${isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}
+          `}
+      >
+        <div className="overflow-hidden">
+          <div className="flex max-[650px]:flex-col gap-2 mb-4  w-full max-[650px]:items-center">
             {/* LYRICS */}
             <div className="flex flex-1 w-full">
               <textarea
@@ -312,7 +359,6 @@ export default function LyricsBlockEditor({
 
             {/* TEXT FORMATTING */}
             <div className="flex w-fit items-center text-white h-6 mt-1 gap-2">
-              {/* Format btn */}
               <Dropdown_Format
                 value={selectedFormat}
                 options={formatOptions}
@@ -335,7 +381,6 @@ export default function LyricsBlockEditor({
                 }}
               />
 
-              {/* Clear selection */}
               <button
                 type="button"
                 title="Supprimer la mise en forme sélectionnée"
@@ -348,7 +393,6 @@ export default function LyricsBlockEditor({
                 <RemoveFormatting size={16} />
               </button>
 
-              {/* Clear block */}
               <button
                 type="button"
                 title="Supprimer la mise en forme du block"
@@ -359,7 +403,7 @@ export default function LyricsBlockEditor({
               </button>
             </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

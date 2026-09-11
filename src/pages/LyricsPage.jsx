@@ -1,13 +1,14 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { getSong, DEMO_MODE } from "../api";
-import DragReorderList from "../components/DragReorderList";
 import LyricsBlockEditor from "../components/LyricsBlockEditor";
 import { styles, ui } from "../styles/styles";
 import { formatOptions } from "../constants/page";
 import { ConfirmModal } from "../components/Modal";
 import Dropdown_Format from "../components/Dropdown_Format";
 import { Eraser, ArrowBigRight } from "lucide-react";
+import { motion } from "framer-motion";
+
 
 export default function LyricsPage(props) {
   const [localSong, setLocalSong] = useState(null);
@@ -44,6 +45,7 @@ export default function LyricsPage(props) {
   const toggleBlock = (blockId) => {
     setOpenBlockId((prev) => (prev === blockId ? null : blockId));
   };
+
 
   // ADD BLOCK
   const allBlocks =
@@ -166,6 +168,7 @@ export default function LyricsPage(props) {
     });
   }
 
+  // OK btn logic
   async function handleConfirm() {
     setLoading(true);
     await stripHtml(confirmState.blockId);
@@ -173,10 +176,12 @@ export default function LyricsPage(props) {
     setLoading(false);
   }
 
+  // CANCEL btn logic
   function handleCancel() {
     setConfirmState({ open: false, blockId: null });
   }
 
+  // TRANSFORM TEXT into html
   async function stripHtml(blockId = null) {
     const isAll = !blockId;
 
@@ -276,51 +281,78 @@ export default function LyricsPage(props) {
 
   if (!song) return <div>Loading...</div>;
 
+  // STORE POSITIONS
   const blocks = useMemo(() => {
     return [...song.progressions.flatMap((p) => p.lyricsBlocks || [])].sort(
       (a, b) => (a.position ?? 0) - (b.position ?? 0),
     );
   }, [song?.progressions]);
 
-  async function persistBlockOrder(order) {
-    const updates = order.map((id, index) => ({
-      id,
+  // SWITCH BLOCK
+  async function moveBlock(blockId, direction) {
+    const currentIndex = blocks.findIndex((block) => block.id === blockId);
+
+    if (currentIndex === -1) return;
+
+    const targetIndex = currentIndex + direction;
+
+    if (targetIndex < 0 || targetIndex >= blocks.length) {
+      return;
+    }
+
+    const reordered = [...blocks];
+
+    [reordered[currentIndex], reordered[targetIndex]] = [
+      reordered[targetIndex],
+      reordered[currentIndex],
+    ];
+
+    const updates = reordered.map((block, index) => ({
+      id: block.id,
       position: index,
     }));
 
+    const positionMap = new Map(
+      updates.map((update) => [update.id, update.position]),
+    );
+
+    // Optimistic UI update
     setSong((prev) => ({
       ...prev,
       progressions: prev.progressions.map((p) => ({
         ...p,
         lyricsBlocks: (p.lyricsBlocks || []).map((block) => {
-          const update = updates.find((update) => update.id === block.id);
-          // create a Map instead of calling .find() for every block
-          return update
-            ? {
-                ...block,
-                position: update.position,
-              }
-            : block;
+          const position = positionMap.get(block.id);
+
+          return position !== undefined ? { ...block, position } : block;
         }),
       })),
     }));
 
     if (DEMO_MODE) return;
 
-    await Promise.all(
-      updates.map((update) =>
-        fetch(`/api/lyrics-blocks/${update.id}`, {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            position: update.position,
+    try {
+      await Promise.all(
+        updates.map((update) =>
+          fetch(`/api/lyrics-blocks/${update.id}`, {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              position: update.position,
+            }),
           }),
-        }),
-      ),
-    );
+        ),
+      );
+    } catch (error) {
+      console.error("Failed to reorder blocks:", error);
+    }
   }
+
+
+
+
 
   //
   //
@@ -449,40 +481,56 @@ export default function LyricsPage(props) {
       </div>
 
       {/* 2. ----------BLOCK LIST-------------- */}
-      <DragReorderList
-        items={blocks}
-        getKey={(block) => block.id}
-        onReorder={persistBlockOrder}
-        renderItem={(block) => {
-          const progression = song.progressions.find(
-            (p) => p.id === block.progression_id,
-          );
+      <div className={`${ui.section}`}>
+          {blocks.map((block, index) => {
+            const progression = song.progressions.find(
+              (p) => p.id === block.progression_id,
+            );
 
-          if (!progression) return null;
+            if (!progression) return null;
 
-          return (
-            <LyricsBlockEditor
-              block={block}
-              progression={progression}
-              song={song}
-              isOpen={openBlockId === block.id}
-              selectedFormat={selectedFormat}
-              onFormatChange={setSelectedFormat}
-              onToggle={toggleBlock}
-              onUpdate={updateBlock}
-              onContentChange={handleContentChange}
-              onContentBlur={handleContentBlur}
-              onRequestStrip={requestStrip}
-              onRequestDelete={(blockId) =>
-                setDeleteConfirm({
-                  open: true,
-                  blockId,
-                })
-              }
-            />
-          );
-        }}
-      />
+            return (
+              <motion.div
+                key={block.id}
+                layout="position"
+                transition={{
+                  layout: {
+                    duration: 0.2,
+                    ease: "easeInOut",
+                  },
+                }}
+                className="relative"
+                style={{
+                  marginBottom: `${(block.mb ?? 0) * 4}px`,
+                }}
+              >
+                <LyricsBlockEditor
+                  block={block}
+                  progression={progression}
+                  song={song}
+                  isOpen={openBlockId === block.id}
+                  selectedFormat={selectedFormat}
+                  onFormatChange={setSelectedFormat}
+                  onToggle={toggleBlock}
+                  onUpdate={updateBlock}
+                  onContentChange={handleContentChange}
+                  onContentBlur={handleContentBlur}
+                  onRequestStrip={requestStrip}
+                  onRequestDelete={(blockId) =>
+                    setDeleteConfirm({
+                      open: true,
+                      blockId,
+                    })
+                  }
+                  onMoveUp={() => moveBlock(block.id, -1)}
+                  onMoveDown={() => moveBlock(block.id, 1)}
+                  canMoveUp={index > 0}
+                  canMoveDown={index < blocks.length - 1}
+                />
+              </motion.div>
+            );
+          })}
+      </div>
 
       {/* ADD BLOCK */}
       <div className="flex justify-center">
